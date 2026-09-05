@@ -1,0 +1,45 @@
+# ExerciseTok
+
+Research-oriented Chrome extension for capturing TikTok samples and coding them against a versioned rubric. The code separates platform extraction from study data, so a Reddit adapter can be added later.
+
+## Blueprint
+
+1. **Platform adapters** read a canonical URL and public metadata from the active page. TikTok is implemented; Reddit should implement the same `PlatformAdapter` interface.
+2. **Side-panel collector** follows the active video, renders the current rubric, validates required responses, and saves a draft or complete evaluation.
+3. **Local repository** stores evaluations and rubric versions in `chrome.storage.local`. This is appropriate for a pilot and keeps collection credentials out of scope.
+4. **Review queue** lists collected samples, opens each canonical link, and exports JSON or CSV for handoff. A production phase can add authenticated sync and blind second-rating.
+5. **Rubric as data** makes the attached study rubric importable without changing UI code. Every evaluation records the rubric ID and version.
+
+## Why an extension
+
+An extension is the best capture surface because the researcher stays in TikTok while coding. For multi-researcher work, pair it with a small backend/dashboard rather than relying on browser storage. TikTok embedding is deliberately not the only review path: embeds can be unavailable, removed, region-restricted, or governed by platform terms. The canonical-link workflow remains the durable fallback.
+
+## Run locally
+
+```bash
+npm install
+npm test
+npm run build
+```
+
+In Chrome, open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select `dist/`. Open TikTok, click the extension icon, and use the side panel.
+
+## Rubric schema
+
+Edit the rubric in the review page. Fields support `single`, `multi`, `boolean`, `number`, and `text`; option fields use an `options` array. Use stable field IDs and increment `version` after any change. `src/domain/rubric.ts` contains an illustrative placeholder until the project rubric is supplied.
+
+## Research and privacy guardrails
+
+- Capture only fields approved by the protocol/IRB and document retention/deletion rules.
+- Treat handles, captions, notes, and links as potentially identifiable data.
+- Do not download media or bypass access controls; collect only researcher-viewed pages.
+- Check TikTok's current terms and institutional policy before field deployment.
+- For inter-rater reliability, store one evaluation per `media.externalId + raterId + rubricVersion` in the future backend and hide prior ratings from the second rater.
+
+## Next milestones
+
+- Replace the sample rubric with the approved rubric.
+- Add IndexedDB plus an append-only event log for stronger crash recovery.
+- Add a backend (Postgres + authenticated API) for study/team/project membership, assignments, blind second ratings, audit logs, and data retention.
+- Add sampling-session metadata, duplicate policy, adjudication, and Cohen's kappa/weighted kappa exports.
+- Add `src/platforms/reddit.ts` and extend manifest host permissions.
