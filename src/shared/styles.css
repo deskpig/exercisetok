@@ -1,0 +1,17 @@
+:root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #18202a; background: #f5f7fa; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 900px; margin: auto; padding: 20px; }
+h1 { font-size: 20px; margin: 0 0 16px; }
+.card { background: white; border: 1px solid #dce1e8; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.field { display: grid; gap: 6px; margin: 14px 0; }
+label { font-weight: 650; }
+input, select, textarea, button { font: inherit; padding: 9px; border: 1px solid #b9c2ce; border-radius: 7px; }
+textarea { min-height: 72px; resize: vertical; }
+button { cursor: pointer; background: #172554; color: white; border: 0; }
+button.secondary { color: #172554; background: #e8eefc; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.muted { color: #667085; font-size: 13px; overflow-wrap: anywhere; }
+.row { display: flex; gap: 10px; justify-content: space-between; align-items: center; }
+.complete { color: #087443; font-weight: 650; }
+iframe { width: 100%; min-height: 570px; border: 0; }
