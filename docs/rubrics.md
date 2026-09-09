@@ -33,7 +33,7 @@ Decision order:
 5. At least accurateThreshold accurate domains OR true actionable-guidance judgment: congruent.
 6. Otherwise: partially congruent.
 
-Three accurate domains plus one partial domain qualify as congruent unless there is an incongruence condition. Partial domains do not count as accurate. A reviewer may override an included record's classification with a reason. Changing an answer clears the override for reconsideration. Both automatic and final values are saved.
+Three accurate domains plus one partial domain qualify as congruent unless there is an incongruence condition. Partial domains do not count as accurate. A reviewer may override an included record's classification with an optional reason; leaving the reason blank does not block draft or complete saves. Changing an answer clears the override for reconsideration. Both automatic and final values are saved, together with the reason if provided.
 
 ## Versions and storage
 

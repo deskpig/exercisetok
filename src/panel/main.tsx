@@ -65,7 +65,6 @@ function App() {
     if (!media || !rubric || savingRef.current) return;
     const errors = status === 'complete' ? answerErrors(rubric, ratings) : [];
     if (!rater.trim()) errors.push('Enter a rater ID.');
-    if (override && !overrideReason.trim()) errors.push('Give a reason for the reviewer override.');
     if (status === 'complete' && rubric.classification && automatic?.eligibility === 'included' && !final) errors.push('Complete global classification.');
     if (errors.length) return setNotice(errors.join(' '));
     savingRef.current = true; setSaving(true);
@@ -110,7 +109,7 @@ function App() {
             <option value="incongruent">Incongruent</option><option value="congruent">Congruent</option><option value="partially congruent">Partially congruent</option>
           </select>
         </div>
-        {override && <div className="field"><label htmlFor="override-reason">Override reason (required)</label><textarea id="override-reason" value={overrideReason} onChange={e => setOverrideReason(e.target.value)} /></div>}
+        {override && <div className="field"><label htmlFor="override-reason">Override reason (optional)</label><textarea id="override-reason" value={overrideReason} onChange={e => setOverrideReason(e.target.value)} /></div>}
         <p>Final encoding: <strong>{final ?? 'Not classified'}</strong></p>
         <p className="muted">Changing an answer resets the override so you can reconsider it.</p>
       </section>}
