@@ -39,6 +39,8 @@ Three accurate domains plus one partial domain qualify as congruent unless there
 
 Increment version when changing a rubric under the same ID. A same-ID/same-version replacement with different contents is rejected against the currently active rubric. Use a different ID for a different study. Each new evaluation preserves rubricSnapshot; older records without snapshots remain readable.
 
+The built-in **Choose exercise/depression rubric** button applies immediately without a file upload or second Apply click. It automatically increases the version when replacing different criteria under the same study ID. Reapplying unchanged criteria does not repeatedly increase the version. JSON object key order is ignored when comparing definitions.
+
 Rubric settings are shared across this extension installation. Data stays in Chrome local storage until exported; there is no cross-researcher sync or independent review import yet. Repeated saves within the current form update its record; reopening a video starts a new record. Save before scrolling: changing the detected video clears unsaved answers.
 
 ## Code map

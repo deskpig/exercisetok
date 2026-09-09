@@ -30,7 +30,7 @@ The default rubric implements the research team's exercise/depression inclusion 
 
 In the panel or review page, expand **Upload or download a project rubric**. Download the current rubric as JSON, edit it for your study, upload it, inspect the candidate name/version, then apply it. Applying clears the unsaved panel form. Existing saved records remain readable.
 
-If an older installation still displays the placeholder rubric, choose **Choose exercise/depression rubric**, then **Apply rubric and clear unsaved form**. Custom stored rubrics are not silently replaced.
+Click **Choose exercise/depression rubric** to immediately load the built-in study criteria, without uploading a file or clicking Apply. Any version conflict is handled automatically by assigning a new version. This replaces the unsaved form; saved evaluations remain intact. Uploaded custom rubrics still use a preview and Apply step.
 
 See [docs/rubrics.md](docs/rubrics.md) for the schema and classification precedence. Every new evaluation archives the rubric definition, automatic suggestion and reason, final encoding, and any reviewer override and reason. JSON and CSV exports include these fields.
 
