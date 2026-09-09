@@ -5,11 +5,11 @@ import { prepareBuiltInRubric, sameRubricDefinition } from './rubricVersion';
 it('replaces conflicting saved criteria with the built-in fields under a new version', () => {
   const saved = { ...sampleRubric, fields: [] };
   const next = prepareBuiltInRubric(sampleRubric, saved);
-  expect(next.version).toBe(2);
+  expect(next.version).toBe(sampleRubric.version + 1);
   expect(next.fields).toEqual(sampleRubric.fields);
   expect(next.classification).toEqual(sampleRubric.classification);
   expect(saved.fields).toEqual([]);
-  expect(sampleRubric.version).toBe(1);
+  expect(sampleRubric.version).toBe(2);
 });
 it('works after the user has manually incremented the saved version', () => {
   expect(prepareBuiltInRubric(sampleRubric, { ...sampleRubric, version: 8, guidance: 'old' }).version).toBe(9);

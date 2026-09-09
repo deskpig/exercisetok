@@ -1,22 +1,34 @@
+import { useId } from 'react';
 import type { Rubric } from '../domain/types';
 
 type Value = string | string[] | number | boolean;
 export function RubricForm({ rubric, values, onChange }: { rubric: Rubric; values: Record<string, Value>; onChange: (id: string, value: Value) => void }) {
-  return <>{rubric.fields.map((field) => <div className="field" key={field.id}>
-    <label htmlFor={field.id}>{field.label}{field.required ? ' *' : ''}</label>
-    {field.description && <span className="muted">{field.description}</span>}
-    {field.type === 'domain' && <>
-      <select id={field.id} value={values[field.id] === 'absent' ? 'absent' : values[field.id] ? 'present' : ''} onChange={e => onChange(field.id, e.target.value)}>
-        <option value="">Select presence…</option><option value="absent">Absent</option><option value="present">Present</option>
-      </select>
-      {values[field.id] && values[field.id] !== 'absent' && <><label htmlFor={field.id + '-accuracy'}>Characterization</label><select id={field.id + '-accuracy'} value={values[field.id] === 'present' ? '' : String(values[field.id])} onChange={e => onChange(field.id, e.target.value || 'present')}>
-        <option value="">Select accuracy…</option><option value="accurate">Accurate</option><option value="inaccurate">Inaccurate</option><option value="partial">Partially accurate</option>
-      </select></>}
-    </>}
-    {field.type === 'boolean' && <select id={field.id} value={String(values[field.id] ?? '')} onChange={(e) => onChange(field.id, e.target.value === '' ? '' : e.target.value === 'true')}><option value="">Select…</option><option value="true">Yes</option><option value="false">No</option></select>}
-    {field.type === 'single' && <select id={field.id} value={String(values[field.id] ?? '')} onChange={(e) => onChange(field.id, e.target.value)}><option value="">Select…</option>{field.options?.map((option) => <option key={option}>{option}</option>)}</select>}
-    {field.type === 'number' && <input id={field.id} type="number" min={field.min} max={field.max} value={String(values[field.id] ?? '')} onChange={(e) => onChange(field.id, e.target.value === '' ? '' : Number(e.target.value))} />}
-    {field.type === 'text' && <textarea id={field.id} value={String(values[field.id] ?? '')} onChange={(e) => onChange(field.id, e.target.value)} />}
-    {field.type === 'multi' && field.options?.map((option) => <label key={option}><input type="checkbox" checked={((values[field.id] as string[]) ?? []).includes(option)} onChange={(e) => { const old = (values[field.id] as string[]) ?? []; onChange(field.id, e.target.checked ? [...old, option] : old.filter((x) => x !== option)); }} /> {option}</label>)}
-  </div>)}</>;
+  const prefix = useId();
+  return <>{rubric.fields.map(field => {
+    const id = prefix + field.id;
+    const value = values[field.id] ?? (field.type === 'domain' ? 'absent' : field.type === 'boolean' ? false : '');
+    const choices: [string, Value][] = field.type === 'domain'
+      ? [['Absent', 'absent'], ['Accurate', 'accurate'], ['Inaccurate', 'inaccurate'], ['Partial', 'partial']]
+      : field.type === 'boolean'
+      ? [['Absent', false], ['Present', true]]
+      : (field.options ?? []).map(option => [option, option]);
+    const input = <>
+      {['domain', 'boolean', 'single'].includes(field.type) && <div className="radio-options">
+        {choices.map(([label, answer], index) => <label key={index}>
+          <input type="radio" name={id} value={String(answer)} checked={value === answer} onChange={() => onChange(field.id, answer)} />{label}
+        </label>)}
+      </div>}
+      {field.type === 'number' && <input aria-label={field.label} type="number" min={field.min} max={field.max} value={String(value)} onChange={e => onChange(field.id, e.target.value === '' ? '' : Number(e.target.value))} />}
+      {field.type === 'text' && <textarea aria-label={field.label} value={String(value)} onChange={e => onChange(field.id, e.target.value)} />}
+      {field.type === 'multi' && field.options?.map(option => <label key={option}><input type="checkbox" checked={((values[field.id] as string[]) ?? []).includes(option)} onChange={e => {
+        const previous = (values[field.id] as string[]) ?? [];
+        onChange(field.id, e.target.checked ? [...previous, option] : previous.filter(x => x !== option));
+      }} />{option}</label>)}
+    </>;
+    return <fieldset className="rubric-field" key={field.id}>
+      <legend>{field.label}{field.required ? ' *' : ''}</legend>
+      {field.description && <details className="field-help"><summary>Criteria</summary><p>{field.description}</p></details>}
+      {field.type === 'text' && !field.required ? <details><summary>Add notes</summary>{input}</details> : input}
+    </fieldset>;
+  })}</>;
 }

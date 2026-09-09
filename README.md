@@ -28,6 +28,8 @@ In Chrome, open `chrome://extensions`, enable Developer mode, choose **Load unpa
 
 The default rubric implements the research team's exercise/depression inclusion criteria and encoding rules. Criteria are study-provided text, not independently verified clinical guidance. Safety is counted as one domain across its three disclaimers.
 
+Version 2 uses one combined inclusion check and compact radios: Absent / Accurate / Inaccurate / Partial for domains, Absent / Present for boolean checks. Defaults are absent and saved as such. Guidance and optional notes are collapsed to save space. Applying the rubric shows a prompt to open TikTok and use the video's Expand control to begin viewing.
+
 In the panel or review page, expand **Upload or download a project rubric**. Download the current rubric as JSON, edit it for your study, upload it, inspect the candidate name/version, then apply it. Applying clears the unsaved panel form. Existing saved records remain readable.
 
 Click **Choose exercise/depression rubric** to immediately load the built-in study criteria, without uploading a file or clicking Apply. Any version conflict is handled automatically by assigning a new version. This replaces the unsaved form; saved evaluations remain intact. Uploaded custom rubrics still use a preview and Apply step.

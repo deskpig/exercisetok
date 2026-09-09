@@ -4,6 +4,8 @@ import { RubricForm } from '../shared/RubricForm';
 import { RubricUpload } from '../shared/RubricUpload';
 import { repository } from '../storage/repository';
 import { answerErrors, classify } from '../domain/classification';
+import { defaultAnswers } from '../domain/defaultAnswers';
+import { ViewingPrompt } from '../shared/ViewingPrompt';
 import type { Congruence, Evaluation, ExtensionMessage, MediaSnapshot, Rubric } from '../domain/types';
 import '../shared/styles.css';
 
@@ -17,6 +19,7 @@ function App() {
   const [override, setOverride] = useState<Congruence | ''>('');
   const [overrideReason, setOverrideReason] = useState('');
   const [saving, setSaving] = useState(false);
+  const [showViewingPrompt, setShowViewingPrompt] = useState(false);
   const record = useRef<{ id: string; createdAt: string } | null>(null);
   const savingRef = useRef(false);
   const activeTab = useRef<number | undefined>(undefined);
@@ -50,7 +53,7 @@ function App() {
     };
   }, []);
   useEffect(() => {
-    setRatings({}); setNotes(''); setNotice(''); setOverride(''); setOverrideReason(''); record.current = null;
+    setRatings(rubric ? defaultAnswers(rubric) : {}); setNotes(''); setNotice(''); setOverride(''); setOverrideReason(''); record.current = null;
   }, [media?.canonicalUrl, rubric?.id, rubric?.version]);
   function change(id: string, value: Evaluation['ratings'][string]) {
     setRatings(old => ({ ...old, [id]: value }));
@@ -80,17 +83,20 @@ function App() {
     } catch { setNotice('Save failed. Your form is still here; please retry.'); }
     finally { savingRef.current = false; setSaving(false); }
   }
-  return <main>
+  return <main className="collector">
     <h1>ExerciseTok collector</h1>
-    {rubric && <><RubricUpload rubric={rubric} onApplied={setRubric} />
-      <details className="card" open><summary>Encoding criteria</summary><p>{rubric.guidance || 'See guidance beside each question.'}</p></details>
+    {rubric && <><RubricUpload rubric={rubric} onApplied={next => {
+      setRubric(next); setRatings(defaultAnswers(next)); setNotes(''); setOverride(''); setOverrideReason(''); record.current = null; setShowViewingPrompt(true);
+    }} />
+      <details className="card"><summary>Encoding criteria</summary><p>{rubric.guidance || 'See guidance beside each question.'}</p></details>
     </>}
+    {rubric && (!media || showViewingPrompt) && <ViewingPrompt url={media?.canonicalUrl} onDismiss={media ? () => setShowViewingPrompt(false) : undefined} />}
     <div className="card"><strong>{media ? '@' + (media.author ?? 'unknown') : 'No TikTok detected'}</strong>
-      <div className="muted">{media?.canonicalUrl ?? 'Open a TikTok video, then refresh detection.'}</div>
+      {media && <a className="muted video-link" href={media.canonicalUrl} target="_blank" rel="noopener noreferrer">{media.canonicalUrl}</a>}
       <button className="secondary" onClick={refresh}>Refresh detection</button>
     </div>
     {media && rubric && <div className="card">
-      <p className="muted">Save before changing videos; unsaved answers are cleared when a different video is detected.</p>
+      <p className="muted">Defaults: absent. Accurate / inaccurate / partial means present. Save before changing videos.</p>
       <div className="field"><label htmlFor="rater">Rater ID</label><input id="rater" value={rater} onChange={e => { setRater(e.target.value); record.current = null; }} /></div>
       <RubricForm rubric={rubric} values={ratings} onChange={change} />
       {rubric.classification && automatic && <section className="card" aria-label="Global encoding">
@@ -108,7 +114,7 @@ function App() {
         <p>Final encoding: <strong>{final ?? 'Not classified'}</strong></p>
         <p className="muted">Changing an answer resets the override so you can reconsider it.</p>
       </section>}
-      <div className="field"><label htmlFor="notes">Notes / supporting quotations</label><textarea id="notes" value={notes} onChange={e => setNotes(e.target.value)} /></div>
+      <details className="field"><summary>Notes / supporting quotations</summary><textarea aria-label="Notes / supporting quotations" value={notes} onChange={e => setNotes(e.target.value)} /></details>
       <div className="actions"><button disabled={saving} onClick={() => save('complete')}>Save complete</button><button disabled={saving} className="secondary" onClick={() => save('draft')}>Save draft</button></div>
     </div>}
     <p role="status">{notice}</p>

@@ -6,7 +6,7 @@ Required root properties: id (stable study ID), name, positive integer version, 
 
 Each field has a unique id, label, and type. Optional properties: description (criteria beside the field), required, options for choice fields, and numeric min/max.
 
-Types: boolean, single, multi, number, text, domain. A domain shows a presence dropdown followed by an accuracy dropdown when present. Stored domain values are absent, accurate, inaccurate, or partial; present is an unfinished draft value requiring characterization.
+Types: boolean, single, multi, number, text, domain. A domain uses one compact radio group: Absent / Accurate / Inaccurate / Partial. The three accuracy options imply presence. Domains default to absent and booleans default to false (Absent); these defaults are stored in each new evaluation, not just displayed. The legacy present value remains an unfinished draft value requiring characterization. Custom single-choice fields also use radios but have no automatic choice. Criteria and optional notes expand on demand.
 
 ## Automatic classification
 
@@ -14,7 +14,7 @@ The optional classification configuration references field IDs:
 
 ```json
 {
-  "inclusionFields": ["depression", "exercise", "relationship"],
+  "inclusionFields": ["exercise_depression"],
   "domainFields": ["dose", "intensity", "duration", "indication", "safety"],
   "conflictFields": ["conflict", "false_claim"],
   "actionableField": "actionable",
@@ -40,6 +40,10 @@ Three accurate domains plus one partial domain qualify as congruent unless there
 Increment version when changing a rubric under the same ID. A same-ID/same-version replacement with different contents is rejected against the currently active rubric. Use a different ID for a different study. Each new evaluation preserves rubricSnapshot; older records without snapshots remain readable.
 
 The built-in **Choose exercise/depression rubric** button applies immediately without a file upload or second Apply click. It automatically increases the version when replacing different criteria under the same study ID. Reapplying unchanged criteria does not repeatedly increase the version. JSON object key order is ignored when comparing definitions.
+
+The built-in version 2 combines screening into one Absent/Present radio group covering exercise, depression, and a relationship between them. An untouched new form is excluded until inclusion is marked Present. Stored older/custom rubrics remain as saved; use the built-in button to apply the new definition.
+
+After applying a rubric, the panel prompts the researcher to open TikTok and click the video's Expand control (shown with a four-corner icon). A detected video's canonical URL can also be opened using Open full video. These buttons navigate; the panel does not simulate clicks inside TikTok. The form appears once a video is detected.
 
 Rubric settings are shared across this extension installation. Data stays in Chrome local storage until exported; there is no cross-researcher sync or independent review import yet. Repeated saves within the current form update its record; reopening a video starts a new record. Save before scrolling: changing the detected video clears unsaved answers.
 
