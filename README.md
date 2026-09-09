@@ -26,7 +26,26 @@ In Chrome, open `chrome://extensions`, enable Developer mode, choose **Load unpa
 
 ## Rubric schema
 
-Edit the rubric in the review page. Fields support `single`, `multi`, `boolean`, `number`, and `text`; option fields use an `options` array. Use stable field IDs and increment `version` after any change. `src/domain/rubric.ts` contains an illustrative placeholder until the project rubric is supplied.
+The default rubric implements the research team's exercise/depression inclusion criteria and encoding rules. Criteria are study-provided text, not independently verified clinical guidance. Safety is counted as one domain across its three disclaimers.
+
+In the panel or review page, expand **Upload or download a project rubric**. Download the current rubric as JSON, edit it for your study, upload it, inspect the candidate name/version, then apply it. Applying clears the unsaved panel form. Existing saved records remain readable.
+
+If an older installation still displays the placeholder rubric, choose **Choose exercise/depression rubric**, then **Apply rubric and clear unsaved form**. Custom stored rubrics are not silently replaced.
+
+See [docs/rubrics.md](docs/rubrics.md) for the schema and classification precedence. Every new evaluation archives the rubric definition, automatic suggestion and reason, final encoding, and any reviewer override and reason. JSON and CSV exports include these fields.
+
+## Updating an installed extension
+
+Use Node.js 24. From the repository folder:
+
+```bash
+git pull --ff-only
+npm ci
+npm test
+npm run build
+```
+
+At `chrome://extensions`, reload ExerciseTok. Refresh your TikTok page and reopen the panel. Save/export in-progress work before updating.
 
 ## Research and privacy guardrails
 
@@ -38,7 +57,7 @@ Edit the rubric in the review page. Fields support `single`, `multi`, `boolean`,
 
 ## Next milestones
 
-- Replace the sample rubric with the approved rubric.
+- Pilot the study rubric with researchers and refine the wording and decision rules.
 - Add IndexedDB plus an append-only event log for stronger crash recovery.
 - Add a backend (Postgres + authenticated API) for study/team/project membership, assignments, blind second ratings, audit logs, and data retention.
 - Add sampling-session metadata, duplicate policy, adjudication, and Cohen's kappa/weighted kappa exports.

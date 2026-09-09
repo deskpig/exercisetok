@@ -1,5 +1,5 @@
 export type Platform = 'tiktok' | 'reddit';
-export type FieldType = 'single' | 'multi' | 'boolean' | 'number' | 'text';
+export type FieldType = 'single' | 'multi' | 'boolean' | 'number' | 'text' | 'domain';
 
 export interface RubricField {
   id: string;
@@ -12,7 +12,20 @@ export interface RubricField {
   max?: number;
 }
 
-export interface Rubric { id: string; name: string; version: number; fields: RubricField[] }
+export interface Rubric {
+  id: string; name: string; version: number; fields: RubricField[];
+  guidance?: string;
+  classification?: {
+    inclusionFields: string[]; domainFields: string[]; conflictFields: string[];
+    actionableField: string; accurateThreshold: number;
+  };
+}
+export type Congruence = 'incongruent' | 'congruent' | 'partially congruent';
+export interface Classification {
+  eligibility: 'pending' | 'included' | 'excluded';
+  suggested: Congruence | null; reason: string; final: Congruence | null;
+  override: Congruence | null; overrideReason: string;
+}
 
 export interface MediaSnapshot {
   platform: Platform;
@@ -34,6 +47,8 @@ export interface Evaluation {
   status: 'draft' | 'complete';
   createdAt: string;
   updatedAt: string;
+  rubricSnapshot?: Rubric;
+  classification?: Classification;
 }
 
 export type ExtensionMessage =
