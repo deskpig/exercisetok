@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "ExerciseTok Research Collector",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Capture and independently rate short-form social media samples.",
   "permissions": ["storage", "tabs", "sidePanel"],
   "host_permissions": ["https://www.tiktok.com/*"],
@@ -13,5 +13,8 @@
   }],
   "side_panel": { "default_path": "panel.html" },
   "action": { "default_title": "Open ExerciseTok" },
-  "options_page": "review.html"
+  "options_page": "review.html",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; frame-src https://www.tiktok.com;"
+  }
 }

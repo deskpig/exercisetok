@@ -1,10 +1,10 @@
 import { useId } from 'react';
-import type { Rubric } from '../domain/types';
+import type { Rubric, RubricField } from '../domain/types';
 
 type Value = string | string[] | number | boolean;
 export function RubricForm({ rubric, values, onChange }: { rubric: Rubric; values: Record<string, Value>; onChange: (id: string, value: Value) => void }) {
   const prefix = useId();
-  return <>{rubric.fields.map(field => {
+  const renderFields = (fields: RubricField[]) => fields.map(field => {
     const id = prefix + field.id;
     const value = values[field.id] ?? (field.type === 'domain' ? 'absent' : field.type === 'boolean' ? false : '');
     const choices: [string, Value][] = field.type === 'domain'
@@ -30,5 +30,13 @@ export function RubricForm({ rubric, values, onChange }: { rubric: Rubric; value
       {field.description && <details className="field-help"><summary>Criteria</summary><p>{field.description}</p></details>}
       {field.type === 'text' && !field.required ? <details><summary>Add notes</summary>{input}</details> : input}
     </fieldset>;
-  })}</>;
+  });
+  const secondary = rubric.fields.filter(field => field.section === 'secondary');
+  return <>{renderFields(rubric.fields.filter(field => field.section !== 'secondary'))}
+    {secondary.length > 0 && <details className="secondary-analysis">
+      <summary>{secondary.some(field => field.required) ? 'Secondary analysis' : 'Secondary analysis (optional)'}</summary>
+      <p className="muted">{rubric.secondaryGuidance || 'Additional research variables.'}</p>
+      {renderFields(secondary)}
+    </details>}
+  </>;
 }

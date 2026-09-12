@@ -9,7 +9,7 @@ it('replaces conflicting saved criteria with the built-in fields under a new ver
   expect(next.fields).toEqual(sampleRubric.fields);
   expect(next.classification).toEqual(sampleRubric.classification);
   expect(saved.fields).toEqual([]);
-  expect(sampleRubric.version).toBe(2);
+  expect(sampleRubric.version).toBe(3);
 });
 it('works after the user has manually incremented the saved version', () => {
   expect(prepareBuiltInRubric(sampleRubric, { ...sampleRubric, version: 8, guidance: 'old' }).version).toBe(9);

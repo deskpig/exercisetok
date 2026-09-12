@@ -1,6 +1,8 @@
 import type { Rubric } from './types';
+import { secondaryFields } from './secondaryFields';
 export const defaultRubric: Rubric = {
-  id: 'exercise-depression', name: 'Exercise and depression — study coding criteria', version: 2,
+  id: 'exercise-depression', name: 'Exercise and depression — study coding criteria', version: 3,
+  secondaryGuidance: 'Draft v2.5, p.3: domain omissions/inaccuracy, platform differences, and content correlates. Dose, intensity, duration and indication are coded above; platform is saved automatically. Treatment role is separate below. Creator, personal-experience, citation, and engagement fields are exploratory suggestions from the discussion, not prespecified variables in the paper. They do not change the primary score. All secondary fields are optional.',
   guidance: 'Study criteria supplied by the research team. Inclusion requires depression, exercise, and a relationship between them. Incongruent: any inaccurate domain, overall conflict with CANMAT, or extraneous false claim (takes precedence). Congruent: at least 3 accurate domains OR reviewer determination that there are no contradictions to CANMAT and guidance is reasonably actionable and would result in adherence. Otherwise included content is partially congruent, including 2 or fewer accurate domains. Partial characterizations do not count as accurate domains. Excluded content receives no congruence class.',
   fields: [
     { id: 'exercise_depression', label: 'Exercise and depression mentioned together', type: 'boolean', required: true, description: 'Present when both are mentioned and a relationship between them is made. This single check covers all three inclusion criteria.' },
@@ -12,7 +14,8 @@ export const defaultRubric: Rubric = {
     { id: 'conflict', label: 'Overall message conflicts with CANMAT guidelines', type: 'boolean', required: true },
     { id: 'false_claim', label: 'Extraneous false (not evidence-based) claim is made', type: 'boolean', required: true },
     { id: 'claim_notes', label: 'Claim / guideline conflict evidence and notes', type: 'text' },
-    { id: 'actionable', label: 'Reviewer determines guidance is actionable and guideline-congruent', type: 'boolean', required: true, description: 'No contradictions to CANMAT; a consumer could reasonably understand how to act, and acting on the guidance would reasonably result in adherence. Permits congruent coding with fewer than 3 accurate domains unless an incongruence condition is recorded.' }
+    { id: 'actionable', label: 'Reviewer determines guidance is actionable and guideline-congruent', type: 'boolean', required: true, description: 'No contradictions to CANMAT; a consumer could reasonably understand how to act, and acting on the guidance would reasonably result in adherence. Permits congruent coding with fewer than 3 accurate domains unless an incongruence condition is recorded.' },
+    ...secondaryFields
   ],
   classification: { inclusionFields: ['exercise_depression'], domainFields: ['dose', 'intensity', 'duration', 'indication', 'safety'], conflictFields: ['conflict', 'false_claim'], actionableField: 'actionable', accurateThreshold: 3 }
 };

@@ -8,8 +8,8 @@ import { ViewingPrompt } from './ViewingPrompt';
 it('renders compact radio groups with the saved defaults checked and criteria collapsed', () => {
   const html = renderToStaticMarkup(<RubricForm rubric={defaultRubric} values={defaultAnswers(defaultRubric)} onChange={() => {}} />);
   expect(html).not.toContain('<select');
-  expect(html.match(/type="radio"/g)).toHaveLength(28);
-  expect(html.match(/checked=""/g)).toHaveLength(9);
+  expect(html).toContain('Secondary analysis (optional)');
+  expect(html.match(/checked=""/g)).toHaveLength(10);
   expect(html).not.toContain('<details open');
   expect(html).toContain('Exercise and depression mentioned together');
 });

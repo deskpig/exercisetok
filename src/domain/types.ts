@@ -10,11 +10,13 @@ export interface RubricField {
   options?: string[];
   min?: number;
   max?: number;
+  section?: 'primary' | 'secondary';
 }
 
 export interface Rubric {
   id: string; name: string; version: number; fields: RubricField[];
   guidance?: string;
+  secondaryGuidance?: string;
   classification?: {
     inclusionFields: string[]; domainFields: string[]; conflictFields: string[];
     actionableField: string; accurateThreshold: number;
@@ -49,6 +51,17 @@ export interface Evaluation {
   updatedAt: string;
   rubricSnapshot?: Rubric;
   classification?: Classification;
+  sessionId?: string;
+  availability?: 'available' | 'unavailable' | 'not-checked';
+}
+
+export interface StudySession {
+  id: string;
+  mode: 'browse' | 'review';
+  rubric: Rubric;
+  queue: MediaSnapshot[];
+  index: number;
+  createdAt: string;
 }
 
 export type ExtensionMessage =

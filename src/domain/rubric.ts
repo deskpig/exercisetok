@@ -7,6 +7,7 @@ export function validateRubric(value: unknown): string[] {
   const r = value as Rubric;
   if (typeof r.id !== 'string' || !r.id.trim() || typeof r.name !== 'string' || !r.name.trim() || !Number.isInteger(r.version) || r.version < 1) errors.push('Rubric metadata is incomplete.');
   if (r.guidance !== undefined && typeof r.guidance !== 'string') errors.push('Guidance must be text.');
+  if (r.secondaryGuidance !== undefined && typeof r.secondaryGuidance !== 'string') errors.push('Secondary guidance must be text.');
   if (!Array.isArray(r.fields) || !r.fields.length) return [...errors, 'Fields must be a nonempty array.'];
   const ids = new Set<string>();
   for (const f of r.fields) {
@@ -18,6 +19,7 @@ export function validateRubric(value: unknown): string[] {
     if (!['single','multi','boolean','number','text','domain'].includes(f.type)) errors.push('Unsupported field type.');
     if (f.description !== undefined && typeof f.description !== 'string') errors.push('Field descriptions must be text.');
     if (f.required !== undefined && typeof f.required !== 'boolean') errors.push('Required must be boolean.');
+    if (f.section !== undefined && !['primary', 'secondary'].includes(f.section)) errors.push('Invalid field section.');
     if (['single','multi'].includes(f.type) && (!Array.isArray(f.options) || !f.options.length || f.options.some(o => typeof o !== 'string' || !o))) errors.push('Choice fields need text options.');
     if ((f.min !== undefined && !Number.isFinite(f.min)) || (f.max !== undefined && !Number.isFinite(f.max)) || (f.min !== undefined && f.max !== undefined && f.min > f.max)) errors.push('Invalid numeric bounds.');
   }

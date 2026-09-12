@@ -1,44 +1,52 @@
 # ExerciseTok
 
-Research-oriented Chrome extension for capturing TikTok samples and coding them against a versioned rubric. The code separates platform extraction from study data, so a Reddit adapter can be added later.
-
-## Blueprint
-
-1. **Platform adapters** read a canonical URL and public metadata from the active page. TikTok is implemented; Reddit should implement the same `PlatformAdapter` interface.
-2. **Side-panel collector** follows the active video, renders the current rubric, validates required responses, and saves a draft or complete evaluation.
-3. **Local repository** stores evaluations and rubric versions in `chrome.storage.local`. This is appropriate for a pilot and keeps collection credentials out of scope.
-4. **Review queue** lists collected samples, opens each canonical link, and exports JSON or CSV for handoff. A production phase can add authenticated sync and blind second-rating.
-5. **Rubric as data** makes the attached study rubric importable without changing UI code. Every evaluation records the rubric ID and version.
-
-## Why an extension
-
-An extension is the best capture surface because the researcher stays in TikTok while coding. For multi-researcher work, pair it with a small backend/dashboard rather than relying on browser storage. TikTok embedding is deliberately not the only review path: embeds can be unavailable, removed, region-restricted, or governed by platform terms. The canonical-link workflow remains the durable fallback.
+Chrome extension for collecting TikTok samples and independently coding them against a versioned research rubric. The platform adapter, rubric, storage, and exports are separate modules so a Reddit version can reuse the study workflow.
 
 ## Run locally
 
+Use Node.js 24. Run these commands in your Ubuntu terminal **inside the downloaded/cloned repository folder**:
+
 ```bash
-npm install
+cd ~/misc-projects/exercisetok
+npm ci
 npm test
 npm run build
 ```
 
-In Chrome, open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select `dist/`. Open TikTok, click the extension icon, and use the side panel.
+In Chrome, open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select this repository's `dist/` folder. Click ExerciseTok's toolbar icon to open the panel.
 
-## Rubric schema
+`npm run dev` serves a development-only browser preview at `/panel.html`. Its localStorage data is separate from the installed extension; live TikTok detection requires loading the extension.
 
-The default rubric implements the research team's exercise/depression inclusion criteria and encoding rules. Criteria are study-provided text, not independently verified clinical guidance. Safety is counted as one domain across its three disclaimers.
+## Collect or independently review
 
-Version 2 uses one combined inclusion check and compact radios: Absent / Accurate / Inaccurate / Partial for domains, Absent / Present for boolean checks. Defaults are absent and saved as such. Guidance and optional notes are collapsed to save space. Applying the rubric shows a prompt to open TikTok and use the video's Expand control to begin viewing.
+1. Choose **Browse new TikToks** or **Upload another researcher’s TikTok list**.
+2. Choose **Use exercise for depression rubric** to load the built-in rubric immediately, or upload a custom JSON rubric and select **Use uploaded rubric**. The ⓘ button opens instructions and an example download; **Close instructions** dismisses it.
+3. In browse mode, open TikTok and click a video's **Expand** control, shown in the prompt. Keep the panel open while browsing. If detection misses a video, use **Refresh detection** or **Add a video by link**.
+4. For an imported list, a wider extension window opens with the embedded video beside the rubric. Use **Previous**, **Next**, or **Complete & next**. Only the current video is visible; the next player preloads without autoplay. The original TikTok link and a reload button are always available if embedding fails.
+5. Answers save as drafts as you edit. **Save complete** marks the rating ready for export. Revisiting a video in the same session restores your answers; **Resume a session** restores a saved session and review position. Editing a completed rating returns it to draft.
 
-In the panel or review page, expand **Upload or download a project rubric**. Download the current rubric as JSON, edit it for your study, upload it, inspect the candidate name/version, then apply it. Applying clears the unsaved panel form. Existing saved records remain readable.
+Each new session has its own rubric snapshot and ratings. Imported files never populate another researcher's answers. Choose the same rubric/version for independent raters when that is what your study requires.
 
-Click **Choose exercise/depression rubric** to immediately load the built-in study criteria, without uploading a file or clicking Apply. Any version conflict is handled automatically by assigning a new version. This replaces the unsaved form; saved evaluations remain intact. Uploaded custom rubrics still use a preview and Apply step.
+Domain radios default to **Absent**. **Accurate**, **Inaccurate**, and **Partial** imply presence. The combined exercise/depression inclusion control and other booleans also default to absent. The automatic global encoding is displayed alongside an optional reviewer override; the override reason is optional.
 
-See [docs/rubrics.md](docs/rubrics.md) for the schema and classification precedence. Every new evaluation archives the rubric definition, automatic suggestion and reason, final encoding, and any reviewer override and reason. JSON and CSV exports include these fields.
+Secondary analysis fields are collapsed to keep the panel compact. They include the draft paper's adjunct/monotherapy target and exploratory content features. See [rubric documentation](docs/rubrics.md) for their scope.
 
-## Updating an installed extension
+## Share a blinded list or export analysis data
 
-Use Node.js 24. From the repository folder:
+Open **Export & share**:
+
+- **Download blinded TikTok list** creates a JSON file with only video IDs and clean canonical links. Share this file with the next researcher, who uploads it from the first panel screen.
+- **Analysis CSV** or **Analysis JSON** requires a unique rater ID entered at export. The output includes links, answers, rubric definition/version, automatic and final classifications, optional override notes, availability, and timestamps. CSV also has separate `rating.<fieldId>` columns for statistical analysis.
+
+Completed records are selected by default. **Include drafts and unavailable items** includes saved drafts too. A workspace exports its own session; the start screen can export all locally saved sessions, including records from earlier extension versions. Exporting with an ID labels the output without changing saved evaluations. Preserve TikTok IDs as text when importing CSV into statistical software.
+
+Supported list uploads: an ExerciseTok blinded JSON export, a JSON array of full video URLs, or a `.txt` file with one URL per line. Limits: 5,000 videos / 2 MB. Duplicate IDs are removed while preserving first-seen order. Short links and analysis files containing prior ratings are rejected. See [data formats](docs/data-formats.md).
+
+The extension downloads files to your computer; it does not send them to another researcher automatically. Data remains in this Chrome installation until exported. Reinstalling/removing the extension can remove its local data.
+
+## Update an installed extension
+
+From the repository folder:
 
 ```bash
 git pull --ff-only
@@ -47,20 +55,24 @@ npm test
 npm run build
 ```
 
-At `chrome://extensions`, reload ExerciseTok. Refresh your TikTok page and reopen the panel. Save/export in-progress work before updating.
+At `chrome://extensions`, reload ExerciseTok. Refresh TikTok and close/reopen any old review windows. Existing saved records remain available from the start screen's export section. Start a new session and select the built-in rubric to use the latest fields; existing sessions retain their original rubric.
 
-## Research and privacy guardrails
+## Code map
 
-- Capture only fields approved by the protocol/IRB and document retention/deletion rules.
-- Treat handles, captions, notes, and links as potentially identifiable data.
-- Do not download media or bypass access controls; collect only researcher-viewed pages.
-- Check TikTok's current terms and institutional policy before field deployment.
-- For inter-rater reliability, store one evaluation per `media.externalId + raterId + rubricVersion` in the future backend and hide prior ratings from the second rater.
+- `src/background/index.ts`: toolbar action opens the side panel.
+- `src/content/index.ts`, `src/platforms/`: detect the active TikTok and send media changes; a future Reddit adapter belongs here.
+- `src/panel/main.tsx` → `src/shared/WorkflowApp.tsx`: start screen, list import, rubric choice, and session resume.
+- `src/shared/BrowseWorkspace.tsx`: active-tab collection and manual-link fallback.
+- `src/review/main.tsx` → `src/shared/ReviewWorkspace.tsx`: sequential embedded review with a persisted position.
+- `src/shared/EvaluationEditor.tsx`, `RubricForm.tsx`: autosaved coding, generic fields, completion, and overrides.
+- `src/domain/`: schemas, default/secondary fields, validation, classification, blinded transfer, and CSV export.
+- `src/storage/repository.ts`: session and evaluation storage; reads legacy records without rewriting them.
+- `src/shared/ExportPanel.tsx`: session-scoped downloads and rater ID entry.
 
-## Next milestones
+The player uses TikTok's [official iframe player](https://developers.tiktok.com/doc/embed-player/) and supports opening the original link when an embed is unavailable. Imported-list review uses a separate wide extension window because the [Chrome side panel API](https://developer.chrome.com/docs/extensions/reference/api/sidePanel) does not offer programmatic width control. No video files are downloaded.
 
-- Pilot the study rubric with researchers and refine the wording and decision rules.
-- Add IndexedDB plus an append-only event log for stronger crash recovery.
-- Add a backend (Postgres + authenticated API) for study/team/project membership, assignments, blind second ratings, audit logs, and data retention.
-- Add sampling-session metadata, duplicate policy, adjudication, and Cohen's kappa/weighted kappa exports.
-- Add `src/platforms/reddit.ts` and extend manifest host permissions.
+## Validation
+
+`npm test` covers rubric validation/classification, absent defaults, rendering, blinded-list validation and round trips, export fields, session isolation, concurrent record storage, and saved queue positions. `npm run build` performs TypeScript checking and bundles the extension.
+
+Before collecting study data in Chrome, try two videos: save a rating, advance, go back, close/reopen the session, export a blinded list, and import it as a fresh session. Verify that answers restore in the original session and remain blank/default in the new one. Live TikTok player availability and page detection depend on the site and need checking in the installed extension.
