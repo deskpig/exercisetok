@@ -31,13 +31,14 @@ Also accepted:
 - A JSON array of full TikTok URL strings.
 - A UTF-8 text file containing one full TikTok video URL per line.
 
-Lists must contain 1–5,000 videos and be at most 2 MB. The parser validates HTTPS TikTok hosts, full `/@creator/video/ID` paths, and ID consistency. It rejects shortened links, malformed data, additional fields in blinded exports, and full analysis exports. Duplicates are removed with a count shown before rubric selection.
+Lists must contain 1–5,000 posts and be at most 2 MB. Both `/@creator/video/ID` and `/@creator/photo/ID` links are supported; mixed lists work without a new file format. The envelope's `videos` property is retained for compatibility. Photo paths are preserved instead of rewritten as video links. The parser validates HTTPS TikTok hosts and ID consistency. It rejects shortened links, malformed data, additional fields in blinded exports, and full analysis exports. Duplicates are removed with a count shown before rubric selection.
 
 ## Analysis JSON
 
 `exercisetok-analysis.json` has `kind: "exercisetok-analysis"`, `schemaVersion: 1`, `raterId`, and an `evaluations` array. Each evaluation includes:
 
 - Stable evaluation/session IDs, media identifiers and canonical URL.
+- `media.mediaType`: `video` or `slideshow` for newly captured/imported posts; this also appears as a `mediaType` CSV column. Older records may omit it.
 - The rater ID supplied at export.
 - Draft/complete status and availability (`not-checked`, `available`, or `unavailable` for new records).
 - Rubric ID/version and the complete rubric snapshot.
@@ -53,6 +54,10 @@ One row represents one saved evaluation. The export includes metadata/classifica
 
 Arrays are JSON-encoded, boolean values are `true`/`false`, absent domains are `absent`, and missing optional values are blank. Explicit zeros are retained. Spreadsheet formula prefixes are escaped in string cells; use JSON if you need exact free-text values. Import TikTok IDs as strings, as spreadsheet/numeric readers can round long IDs.
 
+Built-in rubric version 4 stores views and comments in `views_range` and `comments_range`. These are categorical band labels, not exact numeric counts; `Not recorded` is distinct from `0`. Likes/shares are not collected in this version. Old sessions retain their original exact-count fields and snapshots, so mixed-version exports may include both old and new columns. Do not interpret band labels as exact counts.
+
+Custom fields retain their selected/entered values and defaults. Numeric ranges export numbers; labeled ranges export strings. The normalized rubric snapshot includes generated metadata so minimal uploads remain traceable.
+
 ## Selection and storage
 
 Workspaces export the current session. The start screen export includes all sessions and legacy saved records. Completed records are the default selection; enable **Include drafts and unavailable items** to export all saved records in that scope. Unsaved storage failures block workspace exports until saving succeeds.
@@ -60,3 +65,5 @@ Workspaces export the current session. The start screen export includes all sess
 Rater IDs are required for analysis files only. They label the exported records and are remembered as a convenience for the next export; they do not authenticate a researcher or change locally saved records. If multiple people use one installation, start separate sessions and enter the appropriate ID for each session's export.
 
 The review queue remembers its position independently of completion. Previous/Next preserves drafts; completing a rating can also advance. Videos not reached yet do not have evaluation records and are not included in rating exports.
+
+The start screen's **Clear saved sessions & lists** action requires two confirmations and removes local queues and ratings, including legacy records. Exported files and rubric/rater preferences are kept. Cleared sessions cannot be restored by an open editor's stale autosave.

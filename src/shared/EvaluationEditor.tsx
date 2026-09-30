@@ -69,8 +69,8 @@ export const EvaluationEditor = forwardRef<EditorHandle, {
     <div className="row"><h2>Code this video</h2><span className="save-state" role="status">{pending ? 'Saving…' : message}</span></div>
     {error && <p className="error" role="alert">{error}</p>}
     {row && <>
-      <details className="criteria"><summary>Encoding criteria · {rubric.name}</summary><p>{rubric.guidance || 'Read the criteria beside each field.'}</p></details>
-      <p className="muted">Absent is the default. Accurate / inaccurate / partial means present.</p>
+      {rubric.guidance && <details className="criteria"><summary>Encoding criteria</summary><p>{rubric.guidance}</p></details>}
+      {rubric.fields.some(field => field.type === 'domain') && <p className="muted">Domains default to absent. Accuracy choices mean present.</p>}
       <RubricForm rubric={rubric} values={row.ratings} onChange={answer} />
       {row.classification && <section className="classification" aria-label="Global encoding">
         <div className="row"><h3>Global encoding</h3><strong>{row.classification.final ?? 'Not classified'}</strong></div>

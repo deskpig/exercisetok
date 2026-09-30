@@ -9,6 +9,14 @@ const media = parseTikTokUrl(url);
 const session: StudySession = { id:'session-a', mode:'browse', rubric:defaultRubric, queue:[media], index:0, createdAt:'2026-09-12T00:00:00Z' };
 
 describe('list validation and blinding', () => {
+  it('round-trips mixed video and slideshow lists without rewriting photo URLs', () => {
+    const photo = parseTikTokUrl('https://www.tiktok.com/@example/photo/987?tracking=secret');
+    expect(photo.mediaType).toBe('slideshow');
+    const exported = blindList([newEvaluation(session, media), newEvaluation(session, photo)]);
+    const imported = parseVideoList(JSON.stringify(exported));
+    expect(imported.videos.map(post => post.mediaType)).toEqual(['video', 'slideshow']);
+    expect(imported.videos[1].canonicalUrl).toBe('https://www.tiktok.com/@example/photo/987');
+  });
   it('round-trips a blinded export without researcher data', () => {
     const row = { ...newEvaluation(session, media), raterId:'SECRET_RATER', notes:'SECRET_NOTE', ratings:{ private:'SECRET_RATING' } };
     const data = blindList([row]);

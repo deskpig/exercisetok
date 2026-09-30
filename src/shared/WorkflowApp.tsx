@@ -5,6 +5,7 @@ import { parseVideoList } from '../domain/transfer';
 import { RubricChoice } from './RubricChoice';
 import { BrowseWorkspace } from './BrowseWorkspace';
 import { ExportPanel } from './ExportPanel';
+import { ClearSavedData } from './ClearSavedData';
 
 async function openReview(id: string) {
   const path = 'review.html?session=' + encodeURIComponent(id);
@@ -85,6 +86,7 @@ export function WorkflowApp() {
         </div>)}
       </details>}
       <ExportPanel />
+      <ClearSavedData onCleared={() => { setSession(null); setQueue([]); }} />
     </>}
     {stage === 'rubric' && <>
       <button className="secondary" onClick={home}>Back</button>

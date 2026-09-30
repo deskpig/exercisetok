@@ -8,7 +8,10 @@ it('stores absent defaults for every domain and boolean', () => {
   expect(answers.dose).toBe('absent');
   expect(answers.exercise_depression).toBe(false);
   expect(answers.false_claim).toBe(false);
-  expect(Object.keys(answers)).toHaveLength(defaultRubric.fields.filter(f => ['boolean', 'domain'].includes(f.type)).length);
+  expect(answers.views_range).toBe('Not recorded');
+  expect(answers.comments_range).toBe('Not recorded');
+  expect(answers).not.toHaveProperty('likes');
+  expect(answers).not.toHaveProperty('shares');
 });
 it('uses one inclusion criterion and classifies an untouched form as excluded', () => {
   expect(defaultRubric.classification?.inclusionFields).toEqual(['exercise_depression']);

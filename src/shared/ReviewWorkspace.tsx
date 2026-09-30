@@ -10,6 +10,7 @@ export function ReviewWorkspace({ sessionId }: { sessionId: string }) {
   const [error, setError] = useState('');
   const [moving, setMoving] = useState(false);
   const [completed, setCompleted] = useState(0);
+  const [cleared, setCleared] = useState(false);
   const editor = useRef<EditorHandle>(null);
   const guard = useRef(false);
   useEffect(() => {
@@ -20,7 +21,7 @@ export function ReviewWorkspace({ sessionId }: { sessionId: string }) {
       if (!value?.queue.length) setError('This review session is missing or empty. Start from the extension panel.');
       else setSession(value);
     }).catch(failed);
-    const refresh = () => { void repository.list(sessionId).then(rows => {
+    const refresh = () => { void repository.session(sessionId).then(value => { if (!cancelled && !value) setCleared(true); }).catch(failed); void repository.list(sessionId).then(rows => {
       if (!cancelled) setCompleted(rows.filter(row => row.status === 'complete').length);
     }).catch(failed); };
     refresh();
@@ -36,6 +37,7 @@ export function ReviewWorkspace({ sessionId }: { sessionId: string }) {
     } catch (cause) { setError((cause as Error).message || 'Could not save before changing videos.'); }
     finally { guard.current = false; setMoving(false); }
   }
+  if (cleared) return <main><p role="status">This session and its saved list were cleared.</p><a className="button" href="review.html">Back to sessions</a></main>;
   if (!session) return <main><p role="alert">{error || 'Loading review session…'}</p></main>;
   const current = session.queue[session.index];
   const last = session.index === session.queue.length - 1;

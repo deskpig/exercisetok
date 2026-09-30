@@ -1,4 +1,5 @@
 import type { Classification, Evaluation, Rubric } from './types';
+import { validFieldValue } from './fieldValue';
 export function classify(rubric: Rubric, ratings: Evaluation['ratings']): Classification {
   const result: Classification = { eligibility: 'pending', suggested: null, final: null, override: null, overrideReason: '', reason: 'Complete the inclusion criteria.' };
   const c = rubric.classification;
@@ -22,7 +23,6 @@ export function answerErrors(rubric: Rubric, ratings: Evaluation['ratings']): st
     const c = rubric.classification;
     const required = f.required || (c && [...c.inclusionFields, ...c.domainFields, ...c.conflictFields, c.actionableField].includes(f.id));
     if (v === undefined || v === '' || (Array.isArray(v) && !v.length)) return required ? ['Answer: ' + f.label] : [];
-    const valid = f.type === 'boolean' ? typeof v === 'boolean' : f.type === 'domain' ? ['absent','accurate','inaccurate','partial'].includes(String(v)) : f.type === 'number' ? typeof v === 'number' && Number.isFinite(v) && (f.min === undefined || v >= f.min) && (f.max === undefined || v <= f.max) : f.type === 'single' ? f.options?.includes(String(v)) : f.type === 'multi' ? Array.isArray(v) && v.every(x => f.options?.includes(x)) : typeof v === 'string';
-    return valid ? [] : ['Check: ' + f.label];
+    return validFieldValue(f, v) ? [] : ['Check: ' + f.label];
   });
 }

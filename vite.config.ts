@@ -10,8 +10,7 @@ export default defineConfig({
       input: {
         panel: 'panel.html',
         review: 'review.html',
-        background: 'src/background/index.ts',
-        content: 'src/content/index.ts'
+        background: 'src/background/index.ts'
       },
       output: { entryFileNames: 'assets/[name].js' }
     }

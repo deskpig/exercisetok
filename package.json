@@ -1,24 +1,25 @@
 {
   "name": "exercisetok",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && vite build --config vite.content.config.ts",
     "dev": "vite",
     "test": "vitest run",
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "vite": "latest"
   },
   "devDependencies": {
     "@types/chrome": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "jsdom": "^30.0.1",
     "typescript": "^5.9.2",
     "vitest": "latest"
   }

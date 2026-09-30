@@ -1,4 +1,5 @@
 import type { Rubric } from './types';
+import { validFieldValue } from './fieldValue';
 export { defaultRubric as sampleRubric } from './defaultRubric';
 
 export function validateRubric(value: unknown): string[] {
@@ -16,12 +17,16 @@ export function validateRubric(value: unknown): string[] {
     if (ids.has(f.id)) errors.push('Rubric field IDs must be unique.');
     ids.add(f.id);
     if (typeof f.label !== 'string' || !f.label.trim()) errors.push('Every field needs a label.');
-    if (!['single','multi','boolean','number','text','domain'].includes(f.type)) errors.push('Unsupported field type.');
+    if (!['single','multi','boolean','number','text','domain','range'].includes(f.type)) errors.push('Unsupported field type.');
     if (f.description !== undefined && typeof f.description !== 'string') errors.push('Field descriptions must be text.');
     if (f.required !== undefined && typeof f.required !== 'boolean') errors.push('Required must be boolean.');
     if (f.section !== undefined && !['primary', 'secondary'].includes(f.section)) errors.push('Invalid field section.');
-    if (['single','multi'].includes(f.type) && (!Array.isArray(f.options) || !f.options.length || f.options.some(o => typeof o !== 'string' || !o))) errors.push('Choice fields need text options.');
+    if ((['single','multi'].includes(f.type) || (f.type === 'range' && f.options !== undefined)) && (!Array.isArray(f.options) || !f.options.length || f.options.some(o => typeof o !== 'string' || !o) || new Set(f.options).size !== f.options.length)) errors.push('Choice fields need unique text options.');
     if ((f.min !== undefined && !Number.isFinite(f.min)) || (f.max !== undefined && !Number.isFinite(f.max)) || (f.min !== undefined && f.max !== undefined && f.min > f.max)) errors.push('Invalid numeric bounds.');
+    if (f.type === 'range' && f.options === undefined && (!Number.isFinite(f.min) || !Number.isFinite(f.max) || f.max! <= f.min!)) errors.push('Numeric ranges need min < max.');
+    if (f.step !== undefined && (!Number.isFinite(f.step) || f.step <= 0)) errors.push('Step must be a positive number.');
+    if (f.booleanLabels !== undefined && (!Array.isArray(f.booleanLabels) || f.booleanLabels.length !== 2 || f.booleanLabels.some(label => typeof label !== 'string' || !label.trim()))) errors.push('Boolean labels must be [false label, true label].');
+    if (f.default !== undefined && !validFieldValue(f, f.default)) errors.push('Invalid default for ' + f.label + '.');
   }
   const c = r.classification;
   if (c !== undefined) {

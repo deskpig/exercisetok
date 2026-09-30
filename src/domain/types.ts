@@ -1,5 +1,6 @@
 export type Platform = 'tiktok' | 'reddit';
-export type FieldType = 'single' | 'multi' | 'boolean' | 'number' | 'text' | 'domain';
+export type FieldType = 'single' | 'multi' | 'boolean' | 'number' | 'text' | 'domain' | 'range';
+export type Answer = string | string[] | number | boolean;
 
 export interface RubricField {
   id: string;
@@ -10,6 +11,9 @@ export interface RubricField {
   options?: string[];
   min?: number;
   max?: number;
+  step?: number;
+  default?: Answer;
+  booleanLabels?: [string, string]; // false, true
   section?: 'primary' | 'secondary';
 }
 
@@ -35,6 +39,7 @@ export interface MediaSnapshot {
   externalId: string;
   author?: string;
   caption?: string;
+  mediaType?: 'video' | 'slideshow';
   observedAt: string;
 }
 
@@ -44,7 +49,7 @@ export interface Evaluation {
   rubricId: string;
   rubricVersion: number;
   raterId: string;
-  ratings: Record<string, string | string[] | number | boolean>;
+  ratings: Record<string, Answer>;
   notes: string;
   status: 'draft' | 'complete';
   createdAt: string;
@@ -66,5 +71,6 @@ export interface StudySession {
 
 export type ExtensionMessage =
   | { type: 'ACTIVE_MEDIA_REQUEST' }
-  | { type: 'ACTIVE_MEDIA_RESPONSE'; media: MediaSnapshot | null }
+  | { type: 'DETECT_ACTIVE_MEDIA_REQUEST' }
+  | { type: 'ACTIVE_MEDIA_RESPONSE'; media: MediaSnapshot | null; notice?: string }
   | { type: 'MEDIA_CHANGED'; media: MediaSnapshot | null };

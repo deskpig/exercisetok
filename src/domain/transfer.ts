@@ -10,10 +10,10 @@ export function parseTikTokUrl(value: unknown, observedAt = new Date().toISOStri
   if (typeof value !== 'string') throw new Error('Each item needs a TikTok video URL.');
   let url: URL;
   try { url = new URL(value.trim()); } catch { throw new Error('Invalid TikTok URL.'); }
-  if (url.protocol !== 'https:' || !['www.tiktok.com', 'tiktok.com', 'm.tiktok.com'].includes(url.hostname) || url.username || url.password || url.port) throw new Error('Use a full https://www.tiktok.com/@creator/video/ID link.');
-  const match = url.pathname.match(/^\/@([a-zA-Z0-9._-]+)\/video\/(\d+)\/?$/);
-  if (!match) throw new Error('Open the video and copy its full /@creator/video/ID link; short links and profile URLs are not supported.');
-  return { platform: 'tiktok', externalId: match[2], author: match[1], canonicalUrl: 'https://www.tiktok.com/@' + match[1] + '/video/' + match[2], observedAt };
+  if (url.protocol !== 'https:' || !['www.tiktok.com', 'tiktok.com', 'm.tiktok.com'].includes(url.hostname) || url.username || url.password || url.port) throw new Error('Use a full HTTPS TikTok /@creator/video/ID or /@creator/photo/ID link.');
+  const match = url.pathname.match(/^\/@([a-zA-Z0-9._-]+)\/(video|photo)\/(\d+)\/?$/);
+  if (!match) throw new Error('Open the post and copy its full /@creator/video/ID or /@creator/photo/ID link; short links and profile URLs are not supported.');
+  return { platform: 'tiktok', externalId: match[3], author: match[1], mediaType: match[2] === 'photo' ? 'slideshow' : 'video', canonicalUrl: 'https://www.tiktok.com/@' + match[1] + '/' + match[2] + '/' + match[3], observedAt };
 }
 
 export function parseVideoList(text: string): { videos: MediaSnapshot[]; duplicates: number } {

@@ -1,5 +1,7 @@
 import type { RubricField } from './types';
 
+export const engagementBands = ['Not recorded', '0', '1–9', '10–99', '100–999', '1,000–9,999', '10,000–99,999', '100,000–999,999', '1,000,000–9,999,999', '10,000,000–99,999,999', '100,000,000+'];
+
 export const secondaryFields: RubricField[] = [
   { id: 'treatment_role', label: 'Adjunct vs monotherapy — accuracy', type: 'domain', section: 'secondary',
     description: 'Draft v2.5, p.3 target. Reference stated on p.1: monotherapy for mild depression; adjunctive therapy for moderate depression. This separate secondary rating is not a sixth primary domain. Also record any contradiction in primary safety or overall conflict.' },
@@ -13,10 +15,10 @@ export const secondaryFields: RubricField[] = [
   { id: 'evidence_citation', label: 'Evidence citation (exploratory)', type: 'single', section: 'secondary',
     options: ['Identifiable source cited', 'Vague evidence claim only', 'No citation', 'Unclear'] },
   { id: 'citation_notes', label: 'Citation details / other content features', type: 'text', section: 'secondary' },
-  ...['views', 'likes', 'comments', 'shares'].map(id => ({
-    id, label: id[0].toUpperCase() + id.slice(1) + ' at collection (exploratory)',
-    type: 'number' as const, min: 0, section: 'secondary' as const
+  ...['views', 'comments'].map(id => ({
+    id: id + '_range', label: id[0].toUpperCase() + id.slice(1) + ' at collection',
+    type: 'range' as const, options: engagementBands, default: 'Not recorded', section: 'secondary' as const
   })),
   { id: 'engagement_notes', label: 'Engagement display / timing notes', type: 'text', section: 'secondary',
-    description: 'Enter counts manually. Leave unavailable values blank; zero means a displayed zero. Note abbreviated displays (e.g. 1.2K), approximations, and timing here. Platform metrics may not be comparable.' }
+    description: 'Choose a count band; leave unavailable counts as Not recorded. Note approximations or collection timing here.' }
 ];

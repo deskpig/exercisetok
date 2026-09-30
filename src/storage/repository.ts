@@ -15,6 +15,21 @@ async function write(values: Record<string, unknown>) {
   localStorage.setItem(PREVIEW_KEY, JSON.stringify({ ...current, ...values }));
   window.dispatchEvent(new Event('exercisetok-store'));
 }
+async function remove(keys: string[]) {
+  if (isExtension()) return chrome.storage.local.remove(keys);
+  if (!import.meta.env.DEV) throw new Error('Load this build as a Chrome extension.');
+  const current = await readAll();
+  for (const key of keys) delete current[key];
+  localStorage.setItem(PREVIEW_KEY, JSON.stringify(current));
+  window.dispatchEvent(new Event('exercisetok-store'));
+}
+let pendingResearchWrite: Promise<void> = Promise.resolve();
+async function researchWrite<T>(task: () => Promise<T>): Promise<T> {
+  if (typeof navigator !== 'undefined' && navigator.locks) return await navigator.locks.request('exercisetok-research-data', task);
+  const next = pendingResearchWrite.then(task, task);
+  pendingResearchWrite = next.then(() => undefined, () => undefined);
+  return next;
+}
 async function get<T>(key: string, fallback: T): Promise<T> {
   const data = isExtension() ? await chrome.storage.local.get(key) : await readAll();
   return (data[key] as T | undefined) ?? fallback;
@@ -39,7 +54,12 @@ export const repository = {
     return rows.filter(row => sessionId === undefined || row.sessionId === sessionId).sort((a,b) => a.createdAt.localeCompare(b.createdAt));
   },
   async evaluation(id: string) { return get<Evaluation | null>('evaluation:' + id, null); },
-  async save(row: Evaluation) { await write({ ['evaluation:' + row.id]: row }); },
+  async save(row: Evaluation) {
+    return researchWrite(async () => {
+      if (row.sessionId && !await get('session:' + row.sessionId, null)) throw new Error('This session was cleared. Start a new session.');
+      await write({ ['evaluation:' + row.id]: row });
+    });
+  },
   rubric: () => get<Rubric>('rubric', sampleRubric),
   rater: () => get<string>('raterId', ''),
   async setRubric(rubric: Rubric) { await write({ rubric }); },
@@ -49,24 +69,33 @@ export const repository = {
     return Object.entries(all).filter(([key]) => key.startsWith('session:')).map(([, value]) => value as StudySession).sort((a,b) => b.createdAt.localeCompare(a.createdAt));
   },
   session: (id: string) => get<StudySession | null>('session:' + id, null),
-  async saveSession(session: StudySession) { await write({ ['session:' + session.id]: session }); },
+  async saveSession(session: StudySession) { return researchWrite(() => write({ ['session:' + session.id]: session })); },
   async addMedia(sessionId: string, media: MediaSnapshot) {
     const update = async () => {
       const session = await this.session(sessionId);
       if (!session) throw new Error('Session is missing.');
       if (!session.queue.some(item => item.platform === media.platform && item.externalId === media.externalId)) {
         session.queue.push(media);
-        await this.saveSession(session);
+        await write({ ['session:' + session.id]: session });
       }
       return session;
     };
-    return navigator.locks ? navigator.locks.request('exercisetok-session:' + sessionId, update) : update();
+    return researchWrite(update);
   },
   async setIndex(sessionId: string, index: number) {
-    const session = await this.session(sessionId);
-    if (!session) throw new Error('Session is missing.');
-    const next = { ...session, index: Math.min(Math.max(index, 0), Math.max(0, session.queue.length - 1)) };
-    await this.saveSession(next);
-    return next;
+    return researchWrite(async () => {
+      const session = await this.session(sessionId);
+      if (!session) throw new Error('Session is missing.');
+      const next = { ...session, index: Math.min(Math.max(index, 0), Math.max(0, session.queue.length - 1)) };
+      await write({ ['session:' + session.id]: next });
+      return next;
+    });
+  },
+  async clearResearchData() {
+    return researchWrite(async () => {
+      const all = await readAll();
+      const keys = Object.keys(all).filter(key => key === 'evaluations' || key.startsWith('evaluation:') || key.startsWith('session:'));
+      await remove(keys);
+    });
   }
 };

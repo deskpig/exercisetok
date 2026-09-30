@@ -20,16 +20,16 @@ In Chrome, open `chrome://extensions`, enable **Developer mode**, choose **Load 
 ## Collect or independently review
 
 1. Choose **Browse new TikToks** or **Upload another researcher’s TikTok list**.
-2. Choose **Use exercise for depression rubric** to load the built-in rubric immediately, or upload a custom JSON rubric and select **Use uploaded rubric**. The ⓘ button opens instructions and an example download; **Close instructions** dismisses it.
-3. In browse mode, open TikTok and click a video's **Expand** control, shown in the prompt. Keep the panel open while browsing. If detection misses a video, use **Refresh detection** or **Add a video by link**.
-4. For an imported list, a wider extension window opens with the embedded video beside the rubric. Use **Previous**, **Next**, or **Complete & next**. Only the current video is visible; the next player preloads without autoplay. The original TikTok link and a reload button are always available if embedding fails.
+2. Choose **Use exercise for depression rubric** to load the built-in rubric immediately, or upload a custom JSON rubric and select **Use uploaded rubric**. The ⓘ button shows two code samples: the file structure and a field example. Click **options**, **range**, **custom-string**, or **custom-number** to update the example, then copy/download a valid file. Only a fields array is required; names, IDs, versions, and defaults are optional.
+3. In browse mode, keep the panel open while viewing videos or photo slideshows. On For You, click **Detect TikTok** to identify the most visible post. If its link is not exposed, the button opens that post's comments and tries again. Automatic detection never clicks comments. You can also open a post's **Expand** control or use **Add a TikTok by link**.
+4. For an imported list, a wider extension window opens with the embedded post beside the rubric. Use **Previous**, **Next**, or **Complete & next** between TikToks; use the arrows **inside the player** between slideshow images. Only the current post is visible; the next player preloads without autoplay. The original TikTok link and a reload button are always available if embedding fails.
 5. Answers save as drafts as you edit. **Save complete** marks the rating ready for export. Revisiting a video in the same session restores your answers; **Resume a session** restores a saved session and review position. Editing a completed rating returns it to draft.
 
 Each new session has its own rubric snapshot and ratings. Imported files never populate another researcher's answers. Choose the same rubric/version for independent raters when that is what your study requires.
 
-Domain radios default to **Absent**. **Accurate**, **Inaccurate**, and **Partial** imply presence. The combined exercise/depression inclusion control and other booleans also default to absent. The automatic global encoding is displayed alongside an optional reviewer override; the override reason is optional.
+Domain radios default to **Absent**. **Accurate**, **Inaccurate**, and **Partial** imply presence. The combined inclusion control defaults to absent; **Overall message conflicts with CANMAT guidelines** uses **False / True**, defaulting to False. The actionable-guidance label is **Guidance is overall actionable and guideline-congruent**. The automatic global encoding and optional reviewer override are preserved; the override reason is optional.
 
-Secondary analysis fields are collapsed to keep the panel compact. They include the draft paper's adjunct/monotherapy target and exploratory content features. See [rubric documentation](docs/rubrics.md) for their scope.
+Secondary analysis fields are collapsed to keep the panel compact. Views and comments now use sliders with count bands from zero through **100,000,000+**, plus **Not recorded**. Likes and shares have been removed from the new built-in rubric. The long encoding and secondary-section introductions have been removed; individual field criteria still expand on demand. See [rubric documentation](docs/rubrics.md) for the analysis scope and bands.
 
 ## Share a blinded list or export analysis data
 
@@ -40,9 +40,15 @@ Open **Export & share**:
 
 Completed records are selected by default. **Include drafts and unavailable items** includes saved drafts too. A workspace exports its own session; the start screen can export all locally saved sessions, including records from earlier extension versions. Exporting with an ID labels the output without changing saved evaluations. Preserve TikTok IDs as text when importing CSV into statistical software.
 
-Supported list uploads: an ExerciseTok blinded JSON export, a JSON array of full video URLs, or a `.txt` file with one URL per line. Limits: 5,000 videos / 2 MB. Duplicate IDs are removed while preserving first-seen order. Short links and analysis files containing prior ratings are rejected. See [data formats](docs/data-formats.md).
+Supported list uploads: an ExerciseTok blinded JSON export, a JSON array of full TikTok URLs, or a `.txt` file with one URL per line. Both `/video/ID` and `/photo/ID` links work, including mixed lists. Limits: 5,000 posts / 2 MB. Duplicate IDs are removed while preserving first-seen order. Short links and analysis files containing prior ratings are rejected. See [data formats](docs/data-formats.md).
 
 The extension downloads files to your computer; it does not send them to another researcher automatically. Data remains in this Chrome installation until exported. Reinstalling/removing the extension can remove its local data.
+
+## Clear saved sessions and lists
+
+On the start screen, choose **Clear saved sessions & lists**. First select **Continue**, then confirm **Yes, permanently clear** on the second screen. Cancel at either step leaves the data unchanged.
+
+This removes all saved sessions, imported queues, and associated ratings, including legacy ratings. Downloaded exports and rubric/rater preferences remain. Other open workspaces stop editing a cleared session, and pending/stale saves cannot recreate it. The clear action has no undo.
 
 ## Update an installed extension
 
@@ -65,6 +71,8 @@ At `chrome://extensions`, reload ExerciseTok. Refresh TikTok and close/reopen an
 - `src/shared/BrowseWorkspace.tsx`: active-tab collection and manual-link fallback.
 - `src/review/main.tsx` → `src/shared/ReviewWorkspace.tsx`: sequential embedded review with a persisted position.
 - `src/shared/EvaluationEditor.tsx`, `RubricForm.tsx`: autosaved coding, generic fields, completion, and overrides.
+- `src/shared/RubricInstructions.tsx`, `src/domain/rubricImport.ts`: interactive examples and minimal-to-full schema normalization.
+- `src/shared/ClearSavedData.tsx`: two confirmation steps for clearing local research data.
 - `src/domain/`: schemas, default/secondary fields, validation, classification, blinded transfer, and CSV export.
 - `src/storage/repository.ts`: session and evaluation storage; reads legacy records without rewriting them.
 - `src/shared/ExportPanel.tsx`: session-scoped downloads and rater ID entry.
@@ -73,6 +81,6 @@ The player uses TikTok's [official iframe player](https://developers.tiktok.com/
 
 ## Validation
 
-`npm test` covers rubric validation/classification, absent defaults, rendering, blinded-list validation and round trips, export fields, session isolation, concurrent record storage, and saved queue positions. `npm run build` performs TypeScript checking and bundles the extension.
+`npm test` covers rubric validation/classification, custom defaults and ranges, interactive examples/sliders/confirmations, mixed video/photo handoffs, visible-feed detection and comment fallback, session isolation, and deletion/save races. Detection tests use DOM fixtures; they do not prove that every live TikTok layout is supported. `npm run build` checks TypeScript and builds both extension pages and a standalone classic content script suitable for the Chrome manifest.
 
 Before collecting study data in Chrome, try two videos: save a rating, advance, go back, close/reopen the session, export a blinded list, and import it as a fresh session. Verify that answers restore in the original session and remain blank/default in the new one. Live TikTok player availability and page detection depend on the site and need checking in the installed extension.
