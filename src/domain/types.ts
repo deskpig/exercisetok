@@ -6,6 +6,7 @@ export interface RubricField {
   id: string;
   label: string;
   description?: string;
+  intro?: string;
   type: FieldType;
   required?: boolean;
   options?: string[];

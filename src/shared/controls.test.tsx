@@ -4,6 +4,7 @@ import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { RubricInstructions } from './RubricInstructions';
 import { RubricForm } from './RubricForm';
+import { RubricChoice } from './RubricChoice';
 import { ClearSavedData } from './ClearSavedData';
 import { defaultRubric } from '../domain/defaultRubric';
 import { defaultAnswers } from '../domain/defaultAnswers';
@@ -77,4 +78,43 @@ it('requires both confirmations, and Cancel at either step never deletes data', 
   await click('Clear saved sessions & lists'); await click('Continue'); await click('Yes, permanently clear');
   expect(clear).toHaveBeenCalledOnce(); expect(done).toHaveBeenCalledOnce();
   expect(host.querySelector('dialog')!.open).toBe(false);
+});
+
+it('places count guidance before both sliders and uses one secondary notes box', async () => {
+  await act(async () => root.render(<RubricForm rubric={defaultRubric} values={defaultAnswers(defaultRubric)} onChange={() => {}} />));
+  const secondary = host.querySelector('.secondary-analysis')!;
+  const text = secondary.textContent!;
+  expect(text.indexOf('Choose a count band')).toBeLessThan(text.indexOf('Views at collection'));
+  expect(text.indexOf('Choose a count band')).toBeLessThan(text.indexOf('Comments at collection'));
+  expect(secondary.querySelectorAll('textarea')).toHaveLength(1);
+  expect(secondary.querySelector('textarea')!.getAttribute('aria-label')).toBe('Secondary analysis notes');
+  expect(text).not.toContain('Engagement display / timing notes');
+  expect(text).not.toContain('Treatment role — quotation / context');
+});
+
+it('opens the guide and file choice together, then shows actionable upload errors', async () => {
+  const choose = vi.fn();
+  await act(async () => root.render(<RubricChoice onChoose={choose} busy={false} />));
+  expect(host.querySelector('[aria-label="Rubric upload instructions"]')).toBeNull();
+  expect(host.querySelector('[aria-label="Rubric instructions"]')).toBeNull();
+  await click('Upload custom rubric');
+  expect(host.querySelector('[aria-label="Rubric instructions"]')).not.toBeNull();
+  expect(host.querySelectorAll('pre')).toHaveLength(2);
+  expect(button('Choose JSON file').disabled).toBe(false);
+  const input = host.querySelector<HTMLInputElement>('input[type=file]')!;
+  const bad = new File(['bad syntax'], 'study.json', { type:'application/json' });
+  Object.defineProperty(bad, 'text', { value:async () => '{\n  "fields" []\n}' });
+  Object.defineProperty(input, 'files', { configurable:true, value:[bad] });
+  await act(async () => input.dispatchEvent(new Event('change', { bubbles:true })));
+  expect(host.querySelector('[role=alert]')!.textContent).toContain('study.json: Invalid JSON at line 2, column 12');
+  expect(choose).not.toHaveBeenCalled();
+  const good = new File(['valid JSON'], 'study.json', { type:'application/json' });
+  Object.defineProperty(good, 'text', { value:async () => '{"fields":[{"field":"Notes"}]}' });
+  Object.defineProperty(input, 'files', { configurable:true, value:[good] });
+  await act(async () => input.dispatchEvent(new Event('change', { bubbles:true })));
+  expect(host.querySelector('[role=alert]')).toBeNull();
+  await click('Use uploaded rubric');
+  expect(choose).toHaveBeenCalledWith(expect.objectContaining({ fields:expect.arrayContaining([expect.objectContaining({ label:'Notes' })]) }));
+  await click('Close instructions');
+  expect(host.querySelector('[aria-label="Rubric instructions"]')).toBeNull();
 });

@@ -35,6 +35,9 @@ h2 { font-size: 17px; }
 .radio-options input { margin: 0; accent-color: #172554; }
 .field-help { font-size: 11px; margin: 2px 0; color: #536074; }
 .field-help summary { font-weight: 400; }
+.field-intro { font-size: 11px; color: #536074; padding-top: 6px; }
+.upload-error { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.5 ui-monospace, monospace; }
+.rubric-upload-controls { margin: 10px 0; }
 .expand-hint, .viewing-prompt button { display: inline-flex; align-items: center; gap: 4px; }
 .expand-hint { vertical-align: middle; }
 .video-link { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

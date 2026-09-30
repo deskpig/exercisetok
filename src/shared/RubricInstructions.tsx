@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { fieldExamples, bandExample } from '../domain/rubricExamples';
 import { download } from './download';
 
-export function RubricInstructions({ onClose }: { onClose: () => void }) {
+export function RubricInstructions({ onClose, children }: { onClose: () => void; children?: ReactNode }) {
   const [type, setType] = useState<keyof typeof fieldExamples>('options');
   const [bands, setBands] = useState(false);
   const [message, setMessage] = useState('');
@@ -15,6 +15,7 @@ export function RubricInstructions({ onClose }: { onClose: () => void }) {
   return <aside className="help-box rubric-instructions" role="region" aria-label="Rubric instructions">
     <div className="row"><strong>Make a rubric</strong><button className="secondary" onClick={onClose}>Close instructions</button></div>
     <p>Upload a <strong>.json</strong> file, up to 1 MB. Only <code>fields</code> is required.</p>
+    {children}
     <p className="code-caption">1. File structure</p>
     <pre className="code-sample"><code>{'{\n  "name": "My study",\n  "fields": [\n    ...\n  ]\n}'}</code></pre>
     <p className="code-caption">2. Replace … with field items. Click a type:</p>

@@ -1,7 +1,7 @@
 import type { Rubric } from './types';
 import { secondaryFields } from './secondaryFields';
 export const defaultRubric: Rubric = {
-  id: 'exercise-depression', name: 'Exercise and depression — study coding criteria', version: 4,
+  id: 'exercise-depression', name: 'Exercise and depression — study coding criteria', version: 5,
   fields: [
     { id: 'exercise_depression', label: 'Exercise and depression mentioned together', type: 'boolean', required: true, description: 'Present when both are mentioned and a relationship between them is made. This single check covers all three inclusion criteria.' },
     { id: 'dose', label: 'Frequency / time (dose)', type: 'domain', required: true, description: '30–40 minutes, 3–4 times per week, or a summative equivalent within 90–160 minutes per week.' },

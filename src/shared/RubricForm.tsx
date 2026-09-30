@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { Fragment, useId } from 'react';
 import type { Rubric, RubricField } from '../domain/types';
 
 type Value = string | string[] | number | boolean;
@@ -33,11 +33,14 @@ export function RubricForm({ rubric, values, onChange }: { rubric: Rubric; value
         onChange(field.id, e.target.checked ? [...previous, option] : previous.filter(x => x !== option));
       }} />{option}</label>)}
     </>;
-    return <fieldset className="rubric-field" key={field.id}>
+    return <Fragment key={field.id}>
+      {field.intro && <p className="field-intro">{field.intro}</p>}
+      <fieldset className="rubric-field">
       <legend>{field.label}{field.required ? ' *' : ''}</legend>
       {field.description && <details className="field-help"><summary>Criteria</summary><p>{field.description}</p></details>}
-      {field.type === 'text' && !field.required ? <details><summary>Add notes</summary>{input}</details> : input}
-    </fieldset>;
+      {field.type === 'text' && !field.required && field.section !== 'secondary' ? <details><summary>Add notes</summary>{input}</details> : input}
+      </fieldset>
+    </Fragment>;
   });
   const secondary = rubric.fields.filter(field => field.section === 'secondary');
   return <>{renderFields(rubric.fields.filter(field => field.section !== 'secondary'))}

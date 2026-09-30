@@ -40,7 +40,7 @@ export function normalizeRubric(value: unknown): Rubric {
       max: bounds.max ?? f.max ?? (numericRange ? 100 : undefined),
       step: bounds.step ?? f.step,
       default: Object.hasOwn(f, 'field-default') ? f['field-default'] : f.default,
-      description: f.description, required: f.required, section: f.section, booleanLabels: f.booleanLabels
+      description: f.description, intro: f.intro, required: f.required, section: f.section, booleanLabels: f.booleanLabels
     } as RubricField;
   });
   const definition = { name: source.name ?? 'Custom rubric', fields, guidance: source.guidance, secondaryGuidance: source.secondaryGuidance, classification: source.classification };

@@ -19,6 +19,7 @@ export function validateRubric(value: unknown): string[] {
     if (typeof f.label !== 'string' || !f.label.trim()) errors.push('Every field needs a label.');
     if (!['single','multi','boolean','number','text','domain','range'].includes(f.type)) errors.push('Unsupported field type.');
     if (f.description !== undefined && typeof f.description !== 'string') errors.push('Field descriptions must be text.');
+    if (f.intro !== undefined && typeof f.intro !== 'string') errors.push('Field introductions must be text.');
     if (f.required !== undefined && typeof f.required !== 'boolean') errors.push('Required must be boolean.');
     if (f.section !== undefined && !['primary', 'secondary'].includes(f.section)) errors.push('Invalid field section.');
     if ((['single','multi'].includes(f.type) || (f.type === 'range' && f.options !== undefined)) && (!Array.isArray(f.options) || !f.options.length || f.options.some(o => typeof o !== 'string' || !o) || new Set(f.options).size !== f.options.length)) errors.push('Choice fields need unique text options.');
