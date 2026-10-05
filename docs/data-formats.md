@@ -44,7 +44,9 @@ Lists must contain 1–5,000 posts and be at most 2 MB. Both `/@creator/video/ID
 - Rubric ID/version and the complete rubric snapshot.
 - All recorded primary and secondary answers plus notes.
 - Inclusion result, automatic suggestion/reason, final classification, reviewer override, and optional reason.
-- Observed, created, and updated timestamps.
+- `collectedAt`: automatically captured UTC ISO 8601 time when this session first creates the post's evaluation, e.g. `2026-10-05T12:34:56.000Z`. It is fixed across edits/revisits and exported in both JSON and a `collectedAt` CSV column. It uses the researcher's computer clock.
+- `media.observedAt`: when the media link was detected/imported. Importing an entire list does not set every evaluation's collection time; each evaluation starts when that item is reached.
+- `createdAt` and `updatedAt`: original evaluation creation and most recent edit times. Older records without `collectedAt` export their original `createdAt` as its fallback, without rewriting saved records. Export time is never substituted for collection time.
 
 A rubric without classification has no automatic congruence results. Older records may lack fields introduced in later versions. Unanswered optional fields are not imputed.
 

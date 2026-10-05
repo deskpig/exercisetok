@@ -90,6 +90,14 @@ it('places count guidance before both sliders and uses one secondary notes box',
   expect(secondary.querySelector('textarea')!.getAttribute('aria-label')).toBe('Secondary analysis notes');
   expect(text).not.toContain('Engagement display / timing notes');
   expect(text).not.toContain('Treatment role — quotation / context');
+  expect(text).not.toContain('Note approximations or collection timing');
+});
+
+it('hides the obsolete timing instruction in older built-in sessions without altering their snapshot', async () => {
+  const old = { ...defaultRubric, version:5, fields:defaultRubric.fields.map(field => field.id === 'views_range' ? { ...field, intro:field.intro + ' Note approximations or collection timing in the notes box below.' } : field) };
+  await act(async () => root.render(<RubricForm rubric={old} values={defaultAnswers(old)} onChange={() => {}} />));
+  expect(host.textContent).not.toContain('Note approximations or collection timing');
+  expect(old.fields.find(field => field.id === 'views_range')!.intro).toContain('Note approximations');
 });
 
 it('opens the guide and file choice together, then shows actionable upload errors', async () => {

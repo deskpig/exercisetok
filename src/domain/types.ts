@@ -53,6 +53,7 @@ export interface Evaluation {
   ratings: Record<string, Answer>;
   notes: string;
   status: 'draft' | 'complete';
+  collectedAt?: string; // UTC ISO timestamp at first evaluation; optional for legacy records.
   createdAt: string;
   updatedAt: string;
   rubricSnapshot?: Rubric;

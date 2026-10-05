@@ -6,6 +6,10 @@ export function RubricForm({ rubric, values, onChange }: { rubric: Rubric; value
   const prefix = useId();
   const renderFields = (fields: RubricField[]) => fields.map(field => {
     const id = prefix + field.id;
+    // Hide the retired instruction in old built-in sessions too, without
+    // rewriting their rubric snapshots or affecting custom rubric wording.
+    const intro = rubric.id === 'exercise-depression' && field.id === 'views_range'
+      ? field.intro?.replace(' Note approximations or collection timing in the notes box below.', '') : field.intro;
     const value = values[field.id] ?? (field.type === 'domain' ? 'absent' : field.type === 'boolean' ? false : '');
     const choices: [string, Value][] = field.type === 'domain'
       ? [['Absent', 'absent'], ['Accurate', 'accurate'], ['Inaccurate', 'inaccurate'], ['Partial', 'partial']]
@@ -34,7 +38,7 @@ export function RubricForm({ rubric, values, onChange }: { rubric: Rubric; value
       }} />{option}</label>)}
     </>;
     return <Fragment key={field.id}>
-      {field.intro && <p className="field-intro">{field.intro}</p>}
+      {intro && <p className="field-intro">{intro}</p>}
       <fieldset className="rubric-field">
       <legend>{field.label}{field.required ? ' *' : ''}</legend>
       {field.description && <details className="field-help"><summary>Criteria</summary><p>{field.description}</p></details>}

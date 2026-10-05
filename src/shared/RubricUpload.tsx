@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Rubric } from '../domain/types';
-import { sampleRubric, validateRubric } from '../domain/rubric';
+import { sampleRubric } from '../domain/rubric';
+import { readRubricFile } from '../domain/rubricFile';
 import { repository } from '../storage/repository';
 import { prepareBuiltInRubric, sameRubricDefinition } from '../domain/rubricVersion';
 
@@ -10,13 +11,9 @@ export function RubricUpload({ rubric, onApplied }: { rubric: Rubric; onApplied:
   async function read(file?: File) {
     setCandidate(null); setMessage('');
     if (!file) return;
-    if (file.size > 1_000_000) return setMessage('Rubric must be smaller than 1 MB.');
     try {
-      const value: unknown = JSON.parse(await file.text());
-      const errors = validateRubric(value);
-      if (errors.length) return setMessage(errors.join(' '));
-      setCandidate(value as Rubric);
-    } catch { setMessage('Could not read a valid JSON rubric.'); }
+      setCandidate(await readRubricFile(file));
+    } catch (cause) { setMessage((cause as Error).message); }
   }
   async function apply(next: Rubric | null = candidate) {
     if (!next) return;

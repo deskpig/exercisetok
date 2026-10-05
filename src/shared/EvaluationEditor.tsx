@@ -15,6 +15,7 @@ export const EvaluationEditor = forwardRef<EditorHandle, {
   const [error, setError] = useState('');
   const current = useRef<Evaluation | null>(null);
   const tail = useRef<Promise<void>>(Promise.resolve());
+  const loading = useRef<Promise<void>>(Promise.resolve());
   const mounted = useRef(true);
   const rubric = session.rubric;
   function persist(next: Evaluation) {
@@ -29,19 +30,23 @@ export const EvaluationEditor = forwardRef<EditorHandle, {
   }
   useImperativeHandle(ref, () => ({
     async flush() {
+      await loading.current;
       if (!current.current) throw new Error('Wait for the saved answers to load.');
-      await tail.current;
+      let pendingSave: Promise<void>;
+      do { pendingSave = tail.current; await pendingSave; } while (pendingSave !== tail.current);
     }
   }));
   useEffect(() => {
     mounted.current = true;
     let cancelled = false;
-    void repository.evaluation(evaluationId(session, media)).then(saved => {
+    const task = repository.evaluation(evaluationId(session, media)).then(saved => {
       if (cancelled) return;
       const next = saved ?? newEvaluation(session, media);
       current.current = next; setRow(next); setMessage(saved ? 'Saved answers restored' : 'New draft');
       if (!saved) persist(next);
-    }).catch(() => { if (!cancelled) setError('Could not load this evaluation. Reopen the session to retry.'); });
+    });
+    loading.current = task;
+    void task.catch(() => { if (!cancelled) setError('Could not load this evaluation. Reopen the session to retry.'); });
     return () => { cancelled = true; mounted.current = false; };
   }, []);
 

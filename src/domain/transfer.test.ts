@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { analysisRows, blindList, parseTikTokUrl, parseVideoList } from './transfer';
 import { newEvaluation, updateEvaluation } from './evaluation';
 import { defaultRubric } from './defaultRubric';
@@ -7,6 +7,7 @@ import { toCsv } from './export';
 const url = 'https://www.tiktok.com/@example/video/123456789';
 const media = parseTikTokUrl(url);
 const session: StudySession = { id:'session-a', mode:'browse', rubric:defaultRubric, queue:[media], index:0, createdAt:'2026-09-12T00:00:00Z' };
+afterEach(() => vi.useRealTimers());
 
 describe('list validation and blinding', () => {
   it('round-trips mixed video and slideshow lists without rewriting photo URLs', () => {
@@ -26,6 +27,7 @@ describe('list validation and blinding', () => {
     expect(text).not.toContain('SECRET');
     expect(text).not.toContain('session');
     expect(text).not.toContain('createdAt');
+    expect(text).not.toContain('collectedAt');
     expect(parseVideoList(text).videos[0].externalId).toBe(media.externalId);
   });
   it('deduplicates URLs without changing first-seen order', () => {
@@ -53,6 +55,29 @@ describe('list validation and blinding', () => {
   });
 });
 describe('independent evaluations and analysis export', () => {
+  it('captures collection time when coding begins, preserving it across edits and exports', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-05T12:34:56Z'));
+    const imported = { ...media, observedAt:'2026-10-01T00:00:00Z' };
+    const row = newEvaluation({ ...session, mode:'review' }, imported);
+    expect(row.collectedAt).toBe('2026-10-05T12:34:56.000Z');
+    vi.setSystemTime(new Date('2026-10-06T12:34:56Z'));
+    const edited = updateEvaluation(row, { notes:'Later edit' });
+    expect(edited.updatedAt).not.toBe(row.updatedAt);
+    expect(edited.collectedAt).toBe(row.collectedAt);
+    const exported = analysisRows([edited], 'R02');
+    expect(JSON.parse(JSON.stringify(exported))[0].collectedAt).toBe(row.collectedAt);
+    expect(toCsv(exported).split('\n')[0].split(',')).toContain('collectedAt');
+    expect(toCsv(exported)).toContain('"2026-10-05T12:34:56.000Z"');
+    expect(toCsv(exported)).toContain('"' + imported.observedAt + '","' + row.collectedAt + '","' + row.createdAt + '","' + edited.updatedAt + '"');
+  });
+  it('uses the original creation time for legacy exports without mutating records', () => {
+    const { collectedAt: _timestamp, ...legacy } = newEvaluation(session, media);
+    const output = analysisRows([legacy], 'R02');
+    expect(output[0].collectedAt).toBe(legacy.createdAt);
+    expect(legacy).not.toHaveProperty('collectedAt');
+    expect(toCsv([legacy])).toContain('"' + legacy.createdAt + '"');
+  });
   it('uses the same record on revisit and a fresh ID for another researcher’s session', () => {
     expect(newEvaluation(session, media).id).toBe(newEvaluation(session, media).id);
     expect(newEvaluation({ ...session, id:'reviewer-b', mode:'review' }, media).id).not.toBe(newEvaluation(session, media).id);

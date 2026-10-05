@@ -53,13 +53,15 @@ The upload is normalized to one internal schema, which is preserved in the sessi
 
 ## Upload errors
 
-Errors name the selected file and distinguish:
+Every error names the selected file and includes a **1-based line and column**. Errors distinguish:
 
 - Unsupported file extension: choose a `.json` text file; `.JSON` is also accepted.
 - File too large: the message shows its size and the 1 MB limit.
 - File access failure or an empty document.
 - JSON syntax: line and column, a short explanation, and an excerpt with a pointer to the error. Missing punctuation, comments, trailing commas, and copied `...` placeholders are rejected with specific guidance; malformed JSON is never silently repaired.
-- Rubric structure: syntactically valid JSON is checked separately, with the invalid setting reported (for example a missing fields array or an invalid field default).
+- Rubric structure: syntactically valid JSON is checked separately, with a pointer to the invalid setting in the original file, including compact aliases, nested bounds, classification references, and bare field arrays. A missing setting points to its containing object, which the message explains.
+
+Wrong file types, oversized files, and access failures have no parsed character position. These explicitly show **line 1, column 1 (file-level reference; contents not parsed)**. Empty documents use line 1, column 1. The extension never silently invents a position inside an unread file.
 
 ## Automatic classification
 
@@ -88,7 +90,7 @@ Decision order:
 
 Partial domains do not count as accurate. Three accurate domains plus a partial domain qualify as congruent unless an incongruence condition is present. A reviewer may override an included record's classification; the reason is optional. Changing a classifier input resets the override for reconsideration. Changes to notes or secondary fields preserve it. Both automatic and final values are exported.
 
-## Built-in exercise/depression rubric, version 5
+## Built-in exercise/depression rubric, version 6
 
 The primary rules and clinical wording are supplied by the research team. One combined Absent/Present control covers mention of exercise, depression, and a relationship between them. An untouched form is excluded until inclusion is marked Present. Safety remains one primary domain spanning the supplied disclaimers. The overall CANMAT-conflict control uses False/True and defaults to False. The actionable-guidance label is shortened without changing classification behavior. Long encoding/secondary introductions are omitted from the panel; individual field criteria remain available.
 
@@ -101,7 +103,7 @@ Secondary analysis is based on the attached *Living ExcerciseTok Draft – v2.5*
 | Platform differences | The `media.platform` field and CSV `platform` column are preserved. TikTok is currently implemented; Reddit collection still needs an adapter and viewer. |
 | Content features associated with congruence | Optional exploratory creator type, testimonial, source citation, views/comments count bands, and notes. |
 
-The paper does **not** prescribe a detailed content-feature codebook. The exploratory categories are starting points for the study's finalized definitions. Views and comments use sliders; likes and shares have been removed since version 4. Version 5 provides one **Secondary analysis notes** box (`secondary_notes`) for treatment context, citations, other content features, count approximations, and timing. The count guidance is visible immediately before the views/comments sliders. Older sessions keep their separate notes fields; no saved text is deleted or rewritten.
+The paper does **not** prescribe a detailed content-feature codebook. The exploratory categories are starting points for the study's finalized definitions. Views and comments use sliders; likes and shares have been removed since version 4. Versions 5 and later provide one **Secondary analysis notes** box (`secondary_notes`) for treatment context, citations, and other observations. The count guidance is visible immediately before the views/comments sliders. Version 6 removes the request to note collection timing because `collectedAt` is now captured automatically for every rubric. The obsolete instruction is also hidden when rendering older built-in sessions. Older fields, snapshots, and saved text remain intact.
 
 Count bands are **Not recorded**, **0**, **1–9**, **10–99**, **100–999**, **1,000–9,999**, **10,000–99,999**, **100,000–999,999**, **1,000,000–9,999,999**, **10,000,000–99,999,999**, and **100,000,000+**. Missing counts default to Not recorded. Stored values use new `views_range` and `comments_range` IDs so they cannot be mistaken for the exact numeric values in earlier versions.
 

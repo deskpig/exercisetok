@@ -64,5 +64,5 @@ export function blindList(rows: Evaluation[]): BlindList {
 
 export function analysisRows(rows: Evaluation[], raterId: string): Evaluation[] {
   if (!raterId.trim()) throw new Error('Enter your unique rater ID before exporting analysis data.');
-  return rows.map(row => ({ ...row, raterId: raterId.trim() }));
+  return rows.map(row => ({ ...row, collectedAt:row.collectedAt ?? row.createdAt, raterId: raterId.trim() }));
 }

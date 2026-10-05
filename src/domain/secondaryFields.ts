@@ -16,7 +16,7 @@ export const secondaryFields: RubricField[] = [
   ...['views', 'comments'].map(id => ({
     id: id + '_range', label: id[0].toUpperCase() + id.slice(1) + ' at collection',
     type: 'range' as const, options: engagementBands, default: 'Not recorded', section: 'secondary' as const,
-    ...(id === 'views' ? { intro: 'Choose a count band; leave unavailable counts as Not recorded. Note approximations or collection timing in the notes box below.' } : {})
+    ...(id === 'views' ? { intro: 'Choose a count band; leave unavailable counts as Not recorded.' } : {})
   })),
   { id: 'secondary_notes', label: 'Secondary analysis notes', type: 'text', section: 'secondary' }
 ];

@@ -26,6 +26,32 @@ it('finds the FYP link above the inner data-e2e wrapper', () => {
   post('123', 'video', 50);
   expect(tiktokAdapter.readActiveMedia(document, page())?.externalId).toBe('123');
 });
+it('finds sibling controls outside an inner generated item wrapper', async () => {
+  vi.useFakeTimers();
+  document.body.innerHTML = '<main><div><div class="css-player-DivItemContainer"><video></video></div><button title="Comments">Comments</button></div></main>';
+  rect(document.querySelector('video')!, 50);
+  document.querySelector('button')!.addEventListener('click', () => window.history.pushState({}, '', '/@creator/video/222'));
+  const result = detectActiveTikTok(document, page());
+  await vi.advanceTimersByTimeAsync(110);
+  expect((await result).media?.externalId).toBe('222');
+});
+it('detects the outer post link despite generated inner wrappers', () => {
+  const active = post('222', 'video', 50);
+  active.querySelector('video')!.parentElement!.className = 'css-player-DivItemContainer';
+  expect(tiktokAdapter.readActiveMedia(document, page())?.externalId).toBe('222');
+});
+it('uses visual visibility even if the player is hidden from accessibility APIs', () => {
+  const active = post('222', 'photo', 50);
+  active.querySelector('img')!.setAttribute('aria-hidden', 'true');
+  expect(tiktokAdapter.readActiveMedia(document, page())?.externalId).toBe('222');
+  active.style.display = 'none';
+  expect(tiktokAdapter.readActiveMedia(document, page())).toBeNull();
+});
+it('ignores links to other posts quoted in the caption or comments', () => {
+  const active = post('222', 'video', 50);
+  active.insertAdjacentHTML('beforeend', '<p data-e2e="video-desc"><a href="/@other/video/999">Replying to this</a></p><div data-e2e="comment-item"><a href="/@other/video/888">Another post</a></div>');
+  expect(tiktokAdapter.readActiveMedia(document, page())?.externalId).toBe('222');
+});
 it('chooses the post most visible on screen, not the first video in the DOM', () => {
   post('111', 'video', -450);
   post('222', 'video', 60);
@@ -92,4 +118,19 @@ it('observes scrolling when the feed DOM itself has not changed', async () => {
 it('rejects lookalike domains', () => {
   expect(tiktokAdapter.matches(new URL('https://nottiktok.com/@a/photo/123'))).toBe(false);
   expect(tiktokAdapter.readActiveMedia(document, new URL('https://www.tiktok.com.evil.test/@a/video/123'))).toBeNull();
+});
+it('rechecks recycled feed players without URL or scroll changes, and stops cleanly', async () => {
+  vi.useFakeTimers();
+  const first = post('111', 'video', 50);
+  const next = post('222', 'video', 950);
+  const seen: (string | undefined)[] = [];
+  const stop = tiktokAdapter.observe(() => seen.push(tiktokAdapter.readActiveMedia(document, page())?.externalId));
+  await vi.advanceTimersByTimeAsync(160);
+  rect(first, -950); rect(first.querySelector('video')!, -950);
+  rect(next, 50); rect(next.querySelector('video')!, 50);
+  await vi.advanceTimersByTimeAsync(1000);
+  expect(seen).toEqual(['111', '222']);
+  stop();
+  await vi.advanceTimersByTimeAsync(1200);
+  expect(seen).toHaveLength(2);
 });

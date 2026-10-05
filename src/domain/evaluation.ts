@@ -10,7 +10,7 @@ export function newEvaluation(session: StudySession, media: MediaSnapshot): Eval
   const ratings = defaultAnswers(session.rubric);
   return { id: evaluationId(session, media), sessionId: session.id, media,
     rubricId: session.rubric.id, rubricVersion: session.rubric.version, rubricSnapshot: session.rubric,
-    raterId: '', ratings, notes: '', status: 'draft', availability: 'not-checked', createdAt: now, updatedAt: now,
+    raterId: '', ratings, notes: '', status: 'draft', availability: 'not-checked', collectedAt: now, createdAt: now, updatedAt: now,
     classification: session.rubric.classification ? classify(session.rubric, ratings) : undefined };
 }
 export function updateEvaluation(row: Evaluation, changes: Partial<Pick<Evaluation, 'ratings' | 'notes' | 'status' | 'availability'>>, override?: Congruence | null, reason?: string): Evaluation {

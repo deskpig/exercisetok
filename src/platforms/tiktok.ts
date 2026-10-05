@@ -2,10 +2,12 @@ import type { MediaSnapshot } from '../domain/types';
 import { parseTikTokUrl } from '../domain/transfer';
 import type { PlatformAdapter } from './adapter';
 
-const POST = 'article, [data-e2e="recommend-list-item-container"], [data-e2e="recommend-list-item"], [data-e2e="feed-item"], [data-e2e="video-item"], div[class*="DivItemContainer"]';
+// Generated DivItemContainer classes can mark an inner player, not the post.
+const POST = 'article, [data-e2e="recommend-list-item-container"], [data-e2e="recommend-list-item"], [data-e2e="feed-item"], [data-e2e="video-item"]';
 const LINKS = 'a[href*="/video/"], a[href*="/photo/"]';
-const COMMENTS = '[data-e2e="comment-icon"], [data-e2e="comment-button"], [data-e2e="comment-count"], button[aria-label*="comment" i], [role="button"][aria-label*="comment" i]';
-const EXCLUDED = 'nav, aside, [hidden], [aria-hidden="true"], [data-e2e="comment-list"], [data-e2e="comment-item"]';
+const COMMENTS = '[data-e2e="comment-icon"], [data-e2e="comment-button"], [data-e2e="comment-count"], [data-e2e="browse-comment"], button[aria-label*="comment" i], [role="button"][aria-label*="comment" i], button[title*="comment" i]';
+const EXCLUDED = 'nav, aside, [hidden], [data-e2e="comment-list"], [data-e2e="comment-item"]';
+const RELATED_LINKS = '[data-e2e="video-desc"], [data-e2e="browse-video-desc"], [data-e2e="comment-list"], [data-e2e="comment-item"]';
 
 function parse(value: string, base: URL) {
   try { return parseTikTokUrl(new URL(value, base).href); } catch { return null; }
@@ -16,25 +18,31 @@ function containerFor(element: HTMLElement): HTMLElement | null {
   const known = element.closest<HTMLElement>(POST);
   if (known) return known;
   // Climb beyond the inner video wrapper, but never treat a whole multi-post feed as one post.
+  let linked: HTMLElement | null = null;
   for (let node: HTMLElement | null = element; node && node.tagName !== 'BODY' && node.tagName !== 'MAIN'; node = node.parentElement) {
-    if (node.querySelectorAll(POST).length > 1) return null;
-    if (node.matches(LINKS) || node.querySelector(COMMENTS) || node.querySelector(LINKS)) return node;
+    if (node.querySelectorAll(POST).length > 1 || node.querySelectorAll('video').length > 1) break;
+    if (node.querySelector(COMMENTS)) return node;
+    if (!linked && (node.matches(LINKS) || node.querySelector(LINKS))) linked = node;
   }
-  return null;
+  return linked;
 }
 
 function visibilityScore(element: HTMLElement, document: Document) {
   if (element.closest(EXCLUDED)) return -1;
   const view = document.defaultView;
   if (!view) return -1;
-  const style = view.getComputedStyle(element);
-  if (style.visibility === 'hidden' || style.display === 'none' || style.opacity === '0') return -1;
   const box = element.getBoundingClientRect();
   const width = Math.max(0, Math.min(box.right, view.innerWidth) - Math.max(box.left, 0));
   const height = Math.max(0, Math.min(box.bottom, view.innerHeight) - Math.max(box.top, 0));
   if (box.width < 120 || box.height < 160 || width < 80 || height < 120) return -1;
   const fraction = width * height / (box.width * box.height);
   if (fraction < 0.25) return -1;
+  // Check styles only for on-screen candidates, not every feed thumbnail.
+  // aria-hidden is an accessibility hint, not proof that a player is invisible.
+  for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+    const style = view.getComputedStyle(node);
+    if (style.visibility === 'hidden' || style.display === 'none' || style.opacity === '0') return -1;
+  }
   const center = Math.max(0, box.top) + height / 2;
   return fraction * 100 + width * height / (view.innerWidth * view.innerHeight) * 30 - Math.abs(center - view.innerHeight / 2) / view.innerHeight * 20;
 }
@@ -66,7 +74,9 @@ function postLink(post: { container: HTMLElement; media: HTMLElement }, url: URL
     const result = parse((post.container as HTMLAnchorElement).href, url);
     if (result) return result;
   }
-  const links = [...post.container.querySelectorAll<HTMLAnchorElement>(LINKS)].map(anchor => parse(anchor.href, url)).filter((item): item is MediaSnapshot => !!item);
+  const links = [...post.container.querySelectorAll<HTMLAnchorElement>(LINKS)]
+    .filter(anchor => !anchor.closest(RELATED_LINKS))
+    .map(anchor => parse(anchor.href, url)).filter((item): item is MediaSnapshot => !!item);
   // Ambiguous containers are not safe to code; a direct permalink or comment action can resolve them.
   return new Set(links.map(link => link.externalId)).size === 1 ? links[0] : null;
 }
@@ -85,23 +95,27 @@ export const tiktokAdapter: PlatformAdapter = {
   },
   observe(onChange) {
     let timer: number | undefined;
-    let previousUrl = location.href;
     const schedule = () => {
       if (timer !== undefined) return;
       timer = window.setTimeout(() => { timer = undefined; onChange(); }, 150);
     };
     const observer = new MutationObserver(schedule);
-    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['href', 'src'] });
+    observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['href', 'src', 'class', 'style', 'hidden', 'aria-hidden'] });
     document.addEventListener('scroll', schedule, true);
+    document.addEventListener('playing', schedule, true);
+    document.addEventListener('loadedmetadata', schedule, true);
+    document.addEventListener('visibilitychange', schedule);
     window.addEventListener('resize', schedule);
     window.addEventListener('popstate', schedule);
-    const urlTimer = window.setInterval(() => {
-      if (location.href !== previousUrl) { previousUrl = location.href; schedule(); }
-    }, 500);
+    // Covers SPA navigation and recycled players with no DOM/scroll event.
+    const scanTimer = window.setInterval(schedule, 1000);
     schedule();
     return () => {
-      observer.disconnect(); clearTimeout(timer); clearInterval(urlTimer);
+      observer.disconnect(); clearTimeout(timer); clearInterval(scanTimer);
       document.removeEventListener('scroll', schedule, true);
+      document.removeEventListener('playing', schedule, true);
+      document.removeEventListener('loadedmetadata', schedule, true);
+      document.removeEventListener('visibilitychange', schedule);
       window.removeEventListener('resize', schedule); window.removeEventListener('popstate', schedule);
     };
   }

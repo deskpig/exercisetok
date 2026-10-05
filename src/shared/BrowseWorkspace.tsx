@@ -5,6 +5,7 @@ import { parseTikTokUrl } from '../domain/transfer';
 import { EvaluationEditor, type EditorHandle } from './EvaluationEditor';
 import { ExportPanel } from './ExportPanel';
 import { ExpandIcon } from './ViewingPrompt';
+import { requestActiveMedia } from './activeMedia';
 
 export function BrowseWorkspace({ session, onHome }: { session: StudySession; onHome: () => void }) {
   const [media, setMedia] = useState<MediaSnapshot | null>(null);
@@ -16,35 +17,44 @@ export function BrowseWorkspace({ session, onHome }: { session: StudySession; on
   const editor = useRef<EditorHandle>(null);
   const activeTab = useRef<number | undefined>(undefined);
   const request = useRef(0);
+  const detectionRequest = useRef(0);
+  const manualRequest = useRef(0);
+  const selected = useRef<MediaSnapshot | null>(null);
   const alive = useRef(true);
   async function select(candidate: MediaSnapshot | null) {
     const token = ++request.current;
     try {
+      if (candidate?.canonicalUrl === selected.current?.canonicalUrl) return;
       if (editor.current) await editor.current.flush();
+      if (!alive.current || token !== request.current) return;
       if (candidate) {
         const clean = { ...candidate, ...parseTikTokUrl(candidate.canonicalUrl, candidate.observedAt) };
         await repository.addMedia(session.id, clean);
-        if (alive.current && token === request.current) setMedia(clean);
-      } else if (alive.current && token === request.current) setMedia(null);
+        if (alive.current && token === request.current) { selected.current = clean; setMedia(clean); }
+      } else if (alive.current && token === request.current) { selected.current = null; setMedia(null); }
       if (alive.current && token === request.current) setError('');
-    } catch (cause) { if (alive.current) setError((cause as Error).message); }
+    } catch (cause) { if (alive.current && token === request.current) setError((cause as Error).message); }
   }
   async function refresh(explicit = false) {
     if (!isExtension()) return;
+    const scan = ++detectionRequest.current;
+    const manualScan = explicit ? ++manualRequest.current : undefined;
+    ++request.current;
     if (explicit) { setDetecting(true); setNotice('Detecting the TikTok on screen…'); }
     try {
       const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!alive.current || scan !== detectionRequest.current) return;
       activeTab.current = tab?.id;
       if (tab?.id === undefined) return select(null);
       try {
-        const response = await chrome.tabs.sendMessage(tab.id, { type: explicit ? 'DETECT_ACTIVE_MEDIA_REQUEST' : 'ACTIVE_MEDIA_REQUEST' } satisfies ExtensionMessage) as ExtensionMessage;
-        if (activeTab.current === tab.id && response.type === 'ACTIVE_MEDIA_RESPONSE') {
+        const response = await requestActiveMedia(tab, explicit);
+        if (alive.current && scan === detectionRequest.current && activeTab.current === tab.id) {
           await select(response.media);
-          if (explicit) setNotice(response.notice || (response.media ? 'TikTok detected.' : 'Open a TikTok post and try again.'));
+          if (alive.current && scan === detectionRequest.current && explicit) setNotice(response.notice || (response.media ? 'TikTok detected.' : 'Open a TikTok post and try again.'));
         }
-      } catch { if (activeTab.current === tab.id) { await select(null); if (explicit) setNotice('Open TikTok and refresh that tab, then try Detect TikTok again.'); } }
-    } catch { if (alive.current) setError('Could not read the active tab. Reopen the panel to retry.'); }
-    finally { if (alive.current) setDetecting(false); }
+      } catch { if (alive.current && scan === detectionRequest.current && activeTab.current === tab.id) { await select(null); setNotice('Could not reconnect to TikTok. Refresh that tab, then try Detect TikTok again.'); } }
+    } catch { if (alive.current && scan === detectionRequest.current) setError('Could not read the active tab. Reopen the panel to retry.'); }
+    finally { if (alive.current && manualScan === manualRequest.current) setDetecting(false); }
   }
   useEffect(() => {
     let cancelled = false;
@@ -57,13 +67,17 @@ export function BrowseWorkspace({ session, onHome }: { session: StudySession; on
     if (!isExtension()) return () => { alive.current = false; };
     void refresh();
     const changed = (message: ExtensionMessage, sender: chrome.runtime.MessageSender) => {
-      if (message.type === 'MEDIA_CHANGED' && sender.tab?.id === activeTab.current) void select(message.media);
+      if (message.type === 'MEDIA_CHANGED' && sender.tab?.id === activeTab.current) {
+        ++detectionRequest.current;
+        setNotice('');
+        void select(message.media);
+      }
     };
     const activated = () => { void refresh(); };
-    const updated = (id: number, info: { status?: string }) => { if (id === activeTab.current && info.status === 'complete') void refresh(); };
+    const updated = (id: number, info: { status?: string; url?: string }) => { if (id === activeTab.current && (info.status === 'complete' || info.url)) void refresh(); };
     chrome.runtime.onMessage.addListener(changed); chrome.tabs.onActivated.addListener(activated); chrome.tabs.onUpdated.addListener(updated);
     return () => {
-      alive.current = false; ++request.current;
+      alive.current = false; ++request.current; ++detectionRequest.current;
       chrome.runtime.onMessage.removeListener(changed); chrome.tabs.onActivated.removeListener(activated); chrome.tabs.onUpdated.removeListener(updated);
     };
   }, [session.id]);
