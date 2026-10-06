@@ -70,7 +70,7 @@ export function WorkflowApp() {
   function home() { setStage('home'); setError(''); setNotice(''); }
   if (stage === 'browse' && session) return <BrowseWorkspace session={session} onHome={home} />;
   return <main className="collector workflow">
-    <SectionHeader eyebrow="Research workspace" title="ExerciseTok" level={1} description="Collect TikToks. Review the evidence. Build your research dataset." />
+    {stage === 'home' && <SectionHeader eyebrow="Data collection tool" title="TikTok Tally" level={1} description="Data collection tool for tiktoks" />}
     {!isExtension() && <p className="preview-label">Development preview · local browser data</p>}
     {error && <p className="error" role="alert">{error}</p>}
     {stage === 'home' && <>
@@ -79,7 +79,7 @@ export function WorkflowApp() {
           <button className="secondary" onClick={() => file.current?.click()}><Icon name="upload" />Upload another researcher’s TikTok list</button>
           <input ref={file} type="file" className="visually-hidden" accept=".json,.txt,application/json,text/plain" aria-label="TikTok list file" onChange={e => { void importList(e.target.files?.[0]); e.target.value = ''; }} />
         </div>
-        <p className="muted">Use an ExerciseTok blinded JSON list, a JSON array of full video URLs, or a .txt file with one URL per line. Up to 5,000 videos / 2 MB. Analysis exports with prior ratings are rejected.</p>
+        <p className="muted">Use a TikTok Tally blinded JSON list, a JSON array of full video URLs, or a .txt file with one URL per line. Up to 5,000 videos / 2 MB. Analysis exports with prior ratings are rejected.</p>
       </section>
       {sessions.length > 0 && <details className="card"><summary>Resume a session · {sessions.length}</summary>
         {sessions.map(value => <div className="session-row" key={value.id}>

@@ -88,7 +88,7 @@ export function BrowseWorkspace({ session, onHome }: { session: StudySession; on
   }
   if (cleared) return <main className="collector"><p role="status">This session and its saved list were cleared.</p><button onClick={onHome}>Back to sessions</button></main>;
   return <main className="collector browse-workspace">
-    <header className="workspace-toolbar"><div><span className="eyebrow">Research workspace</span><h1>ExerciseTok</h1></div><button className="secondary" onClick={() => { void home(); }}><Icon name="back" />Sessions</button></header>
+    <header className="workspace-toolbar"><div><span className="eyebrow">Data collection tool</span><h1>TikTok Tally</h1></div><button className="secondary" onClick={() => { void home(); }}><Icon name="back" />Sessions</button></header>
     <ExportPanel sessionId={session.id} beforeExport={async () => { if (editor.current) await editor.current.flush(); }} />
     {!media && <section className="card viewing-prompt">
       <h2>Rubric ready. Start viewing.</h2>

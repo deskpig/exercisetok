@@ -1,0 +1,21 @@
+{
+  "kind": "exercisetok-blind-list",
+  "schemaVersion": 1,
+  "videos": [
+    {
+      "platform": "tiktok",
+      "externalId": "7195344429840895278",
+      "url": "https://www.tiktok.com/@iknowforrest/video/7195344429840895278"
+    },
+    {
+      "platform": "tiktok",
+      "externalId": "7338217688004627755",
+      "url": "https://www.tiktok.com/@socalgastrodoc/video/7338217688004627755"
+    },
+    {
+      "platform": "tiktok",
+      "externalId": "7338909291929292065",
+      "url": "https://www.tiktok.com/@drjaleelmohammed/video/7338909291929292065"
+    }
+  ]
+}

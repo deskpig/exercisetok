@@ -1,4 +1,4 @@
-# ExerciseTok
+# TikTok Tally
 
 Chrome extension for collecting TikTok samples and independently coding them against a versioned research rubric. The platform adapter, rubric, storage, and exports are separate modules so a Reddit version can reuse the study workflow.
 
@@ -15,7 +15,7 @@ npm test
 npm run build
 ```
 
-In Chrome, open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select this repository's `dist/` folder. Click ExerciseTok's toolbar icon to open the panel.
+In Chrome, open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select this repository's `dist/` folder. Click TikTok Tally's toolbar icon to open the panel.
 
 `npm run dev` serves a development-only browser preview at `/panel.html`. Its localStorage data is separate from the installed extension; live TikTok detection requires loading the extension.
 
@@ -46,7 +46,7 @@ Open **Export & share**:
 
 Completed records are selected by default. **Include drafts and unavailable items** includes saved drafts too. A workspace exports its own session; the start screen can export all locally saved sessions, including records from earlier extension versions. Exporting with an ID labels the output without changing saved evaluations. Preserve TikTok IDs as text when importing CSV into statistical software.
 
-Supported list uploads: an ExerciseTok blinded JSON export, a JSON array of full TikTok URLs, or a `.txt` file with one URL per line. Both `/video/ID` and `/photo/ID` links work, including mixed lists. Limits: 5,000 posts / 2 MB. Duplicate IDs are removed while preserving first-seen order. Short links and analysis files containing prior ratings are rejected. See [data formats](docs/data-formats.md).
+Supported list uploads: a TikTok Tally blinded JSON export, a JSON array of full TikTok URLs, or a `.txt` file with one URL per line. Both `/video/ID` and `/photo/ID` links work, including mixed lists. Limits: 5,000 posts / 2 MB. Duplicate IDs are removed while preserving first-seen order. Short links and analysis files containing prior ratings are rejected. See [data formats](docs/data-formats.md).
 
 The extension downloads files to your computer; it does not send them to another researcher automatically. Data remains in this Chrome installation until exported. Reinstalling/removing the extension can remove its local data.
 
@@ -67,7 +67,7 @@ npm test
 npm run build
 ```
 
-At `chrome://extensions`, reload ExerciseTok. Refresh TikTok and close/reopen any old review windows. Existing saved records remain available from the start screen's export section. Start a new session and select the built-in rubric to use the latest fields; existing sessions retain their original rubric.
+At `chrome://extensions`, reload TikTok Tally. Refresh TikTok and close/reopen any old review windows. Existing saved records remain available from the start screen's export section. Start a new session and select the built-in rubric to use the latest fields; existing sessions retain their original rubric.
 
 ## Code map
 

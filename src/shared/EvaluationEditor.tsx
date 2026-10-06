@@ -4,7 +4,6 @@ import { evaluationId, newEvaluation, updateEvaluation } from '../domain/evaluat
 import { answerErrors } from '../domain/classification';
 import { repository } from '../storage/repository';
 import { RubricForm } from './RubricForm';
-import { SectionHeader } from './SectionHeader';
 import { Icon } from './Icon';
 
 export interface EditorHandle { flush: () => Promise<void> }
@@ -74,14 +73,13 @@ export const EvaluationEditor = forwardRef<EditorHandle, {
   }
   const builtIn = rubric.id === 'exercise-depression';
   return <section className="evaluation-editor" aria-label="Coding rubric">
-    <SectionHeader eyebrow={builtIn ? 'Clinical review / CANMAT' : 'Research review / Custom rubric'}
-      title={builtIn ? 'Assess guideline alignment' : rubric.name}
-      description={builtIn ? 'Review the message against CANMAT guidelines. Note any conflicts and cite the evidence for your assessment.' : 'Review this post using your study criteria. Record your assessment and supporting notes.'}>
+    <div className="editor-toolbar">
+      <span className="eyebrow">{builtIn ? 'CANMAT coding rubric' : 'Coding rubric'}</span>
       <div className="editor-meta">
         {rubric.fields.some(field => field.required) && <span className="required-note"><span className="required-mark">*</span> Required fields</span>}
         <span className="save-state" role="status" data-state={pending ? 'pending' : 'saved'}>{pending ? 'Saving…' : message}</span>
       </div>
-    </SectionHeader>
+    </div>
     {error && <p className="error" role="alert">{error}</p>}
     {row && <>
       <div className="card rubric-card">

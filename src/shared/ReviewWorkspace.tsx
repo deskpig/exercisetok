@@ -43,7 +43,7 @@ export function ReviewWorkspace({ sessionId }: { sessionId: string }) {
   const current = session.queue[session.index];
   const last = session.index === session.queue.length - 1;
   return <main className="review-workspace">
-    <header className="workspace-header"><div><span className="eyebrow">ExerciseTok · independent review</span><h1>{session.rubric.name}</h1><p className="muted">{completed} of {session.queue.length} complete · Your ratings only</p></div><ExportPanel sessionId={session.id} beforeExport={async () => { if (editor.current) await editor.current.flush(); }} /></header>
+    <header className="workspace-header"><div><span className="eyebrow">TikTok Tally · independent review</span><h1>{session.rubric.name}</h1><p className="muted">{completed} of {session.queue.length} complete · Your ratings only</p></div><ExportPanel sessionId={session.id} beforeExport={async () => { if (editor.current) await editor.current.flush(); }} /></header>
     {error && <p role="alert" className="error">{error}</p>}
     <div className="review-grid">
       <section className="viewer" aria-label="Sequential video viewer">

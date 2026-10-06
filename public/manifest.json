@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "ExerciseTok Research Collector",
-  "version": "0.3.3",
+  "name": "TikTok Tally Research Collector",
+  "version": "0.3.4",
   "description": "Capture and independently rate short-form social media samples.",
   "permissions": ["storage", "tabs", "sidePanel", "scripting"],
   "host_permissions": ["https://www.tiktok.com/*"],
@@ -12,7 +12,7 @@
     "run_at": "document_idle"
   }],
   "side_panel": { "default_path": "panel.html" },
-  "action": { "default_title": "Open ExerciseTok" },
+  "action": { "default_title": "Open TikTok Tally" },
   "options_page": "review.html",
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'; frame-src https://www.tiktok.com;"
