@@ -6,6 +6,7 @@ import { EvaluationEditor, type EditorHandle } from './EvaluationEditor';
 import { ExportPanel } from './ExportPanel';
 import { ExpandIcon } from './ViewingPrompt';
 import { requestActiveMedia } from './activeMedia';
+import { Icon } from './Icon';
 
 export function BrowseWorkspace({ session, onHome }: { session: StudySession; onHome: () => void }) {
   const [media, setMedia] = useState<MediaSnapshot | null>(null);
@@ -87,17 +88,17 @@ export function BrowseWorkspace({ session, onHome }: { session: StudySession; on
   }
   if (cleared) return <main className="collector"><p role="status">This session and its saved list were cleared.</p><button onClick={onHome}>Back to sessions</button></main>;
   return <main className="collector browse-workspace">
-    <header className="row"><h1>ExerciseTok</h1><button className="secondary" onClick={() => { void home(); }}>Sessions</button></header>
+    <header className="workspace-toolbar"><div><span className="eyebrow">Research workspace</span><h1>ExerciseTok</h1></div><button className="secondary" onClick={() => { void home(); }}><Icon name="back" />Sessions</button></header>
     <ExportPanel sessionId={session.id} beforeExport={async () => { if (editor.current) await editor.current.flush(); }} />
-    {!media && <section className="card">
+    {!media && <section className="card viewing-prompt">
       <h2>Rubric ready. Start viewing.</h2>
       <p>Open TikTok and choose a video or slideshow. On For You, click <strong>Detect TikTok</strong> below. You can also use the post’s <span className="expand-hint"><ExpandIcon /> Expand</span> control.</p>
-      <a className="button" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer">Open TikTok</a>
+      <a className="button" href="https://www.tiktok.com/" target="_blank" rel="noopener noreferrer"><Icon name="external" />Open TikTok</a>
       <p className="muted">Keep this panel open as you browse. New videos start drafts; returning to a video restores your answers.</p>
     </section>}
-    <section className="card">
-      {media && <><strong>@{media.author}{media.mediaType === 'slideshow' ? ' · Slideshow' : ''}</strong><a className="muted video-link" href={media.canonicalUrl} target="_blank" rel="noopener noreferrer">{media.canonicalUrl}</a></>}
-      <button className="secondary" disabled={detecting} onClick={() => { void refresh(true); }}>{detecting ? 'Detecting…' : 'Detect TikTok'}</button>
+    <section className="card detect-card">
+      {media && <div className="media-meta"><span className="eyebrow">Current post</span><strong>@{media.author}{media.mediaType === 'slideshow' ? ' · Slideshow' : ''}</strong><a className="muted video-link" href={media.canonicalUrl} target="_blank" rel="noopener noreferrer">{media.canonicalUrl}</a></div>}
+      <button className="secondary" disabled={detecting} onClick={() => { void refresh(true); }}><Icon name="scan" />{detecting ? 'Detecting…' : 'Detect TikTok'}</button>
       <p className="muted">Finds the post on screen; may open its comments on For You.</p>
       {notice && <p role="status" className="muted">{notice}</p>}
       <details><summary>Add a TikTok by link</summary><div className="field"><label htmlFor="manual-url">Full TikTok video or photo URL</label><input id="manual-url" value={manual} onChange={e => setManual(e.target.value)} placeholder="https://www.tiktok.com/@creator/photo/123…" /></div><button onClick={() => { try { void select(parseTikTokUrl(manual)); } catch (cause) { setError((cause as Error).message); } }}>Code this link</button></details>

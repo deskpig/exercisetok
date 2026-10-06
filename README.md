@@ -2,6 +2,8 @@
 
 Chrome extension for collecting TikTok samples and independently coding them against a versioned research rubric. The platform adapter, rubric, storage, and exports are separate modules so a Reddit version can reuse the study workflow.
 
+The current UI uses a shared visual system: a pale blue-gray canvas, white rounded cards, thin neutral dividers, purple primary actions, compact monospace eyebrow labels, custom radio/checkbox controls, and a pale blue classification panel. It is implemented through `src/shared/tokens.css`, `styles.css`, `Icon.tsx`, and `SectionHeader.tsx` so the same treatment carries across setup, browse, sequential review, rubric upload, exports, and confirmation dialogs. The supplied screenshots were available as the visual reference; the linked Figma file was unavailable to the implementation browser, so its exact font metadata and measurements remain unverified.
+
 ## Run locally
 
 Use Node.js 24. Run these commands in your Ubuntu terminal **inside the downloaded/cloned repository folder**:

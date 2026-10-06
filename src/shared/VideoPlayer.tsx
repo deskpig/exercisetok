@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { MediaSnapshot } from '../domain/types';
+import { Icon } from './Icon';
 
 export function VideoPlayer({ video, active }: { video: MediaSnapshot; active: boolean }) {
   const frame = useRef<HTMLIFrameElement>(null);
@@ -30,8 +31,8 @@ export function VideoPlayer({ video, active }: { video: MediaSnapshot; active: b
       tabIndex={active ? 0 : -1} allow="fullscreen; encrypted-media" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
     {active && <>
       {(error || (slow && !ready)) && <p className="muted">The player may be blocked or this video unavailable. Open the original link below, or mark it unavailable and continue.</p>}
-      <div className="actions"><a className="button secondary" href={video.canonicalUrl} target="_blank" rel="noopener noreferrer">Open original TikTok</a>
-        <button className="secondary" onClick={() => { setReady(false); setError(false); setSlow(false); setSlide(0); setAttempt(attempt + 1); }}>Reload player</button></div>
+      <div className="actions"><a className="button secondary" href={video.canonicalUrl} target="_blank" rel="noopener noreferrer"><Icon name="external" />Open original TikTok</a>
+        <button className="secondary" onClick={() => { setReady(false); setError(false); setSlow(false); setSlide(0); setAttempt(attempt + 1); }}><Icon name="refresh" />Reload player</button></div>
     </>}
   </div>;
 }

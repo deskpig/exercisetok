@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { fieldExamples, bandExample } from '../domain/rubricExamples';
 import { download } from './download';
+import { Icon } from './Icon';
 
 export function RubricInstructions({ onClose, children }: { onClose: () => void; children?: ReactNode }) {
   const [type, setType] = useState<keyof typeof fieldExamples>('options');
@@ -13,7 +14,7 @@ export function RubricInstructions({ onClose, children }: { onClose: () => void;
     catch { setMessage('Use Download this example to save the JSON.'); }
   }
   return <aside className="help-box rubric-instructions" role="region" aria-label="Rubric instructions">
-    <div className="row"><strong>Make a rubric</strong><button className="secondary" onClick={onClose}>Close instructions</button></div>
+    <div className="row"><strong>Make a rubric</strong><button className="secondary" onClick={onClose}><Icon name="close" />Close instructions</button></div>
     <p>Upload a <strong>.json</strong> file, up to 1 MB. Only <code>fields</code> is required.</p>
     {children}
     <p className="code-caption">1. File structure</p>
@@ -27,7 +28,7 @@ export function RubricInstructions({ onClose, children }: { onClose: () => void;
       <pre className="code-sample" id="field-example" role="tabpanel" aria-label={type + ' example'}><code>{JSON.stringify(example, null, 2)}</code></pre>
     </div>
     <p className="muted">{type === 'custom-string' ? 'Free text needs no field-values. ' : type === 'custom-number' ? 'Number limits are optional. ' : ''}Defaults are optional. Separate field items with commas. Name, IDs, and version can be omitted.</p>
-    <div className="actions"><button className="secondary" onClick={() => download('my-rubric.json', file)}>Download this example</button><button className="secondary" onClick={() => { void copyExample(); }}>Copy example JSON</button></div>
+    <div className="actions"><button className="secondary" onClick={() => download('my-rubric.json', file)}><Icon name="download" />Download this example</button><button className="secondary" onClick={() => { void copyExample(); }}>Copy example JSON</button></div>
     {message && <p role="status">{message}</p>}
   </aside>;
 }

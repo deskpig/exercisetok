@@ -6,6 +6,8 @@ import { RubricChoice } from './RubricChoice';
 import { BrowseWorkspace } from './BrowseWorkspace';
 import { ExportPanel } from './ExportPanel';
 import { ClearSavedData } from './ClearSavedData';
+import { SectionHeader } from './SectionHeader';
+import { Icon } from './Icon';
 
 async function openReview(id: string) {
   const path = 'review.html?session=' + encodeURIComponent(id);
@@ -68,13 +70,13 @@ export function WorkflowApp() {
   function home() { setStage('home'); setError(''); setNotice(''); }
   if (stage === 'browse' && session) return <BrowseWorkspace session={session} onHome={home} />;
   return <main className="collector workflow">
-    <header><span className="eyebrow">Research workspace</span><h1>ExerciseTok</h1></header>
+    <SectionHeader eyebrow="Research workspace" title="ExerciseTok" level={1} description="Collect TikToks. Review the evidence. Build your research dataset." />
     {!isExtension() && <p className="preview-label">Development preview · local browser data</p>}
     {error && <p className="error" role="alert">{error}</p>}
     {stage === 'home' && <>
       <section className="card welcome"><h2>What would you like to analyze?</h2>
-        <div className="setup-options"><button onClick={() => { setMode('browse'); setQueue([]); setStage('rubric'); setNotice(''); }}>Browse new TikToks</button>
-          <button className="secondary" onClick={() => file.current?.click()}>Upload another researcher’s TikTok list</button>
+        <div className="setup-options"><button onClick={() => { setMode('browse'); setQueue([]); setStage('rubric'); setNotice(''); }}><Icon name="play" />Browse new TikToks</button>
+          <button className="secondary" onClick={() => file.current?.click()}><Icon name="upload" />Upload another researcher’s TikTok list</button>
           <input ref={file} type="file" className="visually-hidden" accept=".json,.txt,application/json,text/plain" aria-label="TikTok list file" onChange={e => { void importList(e.target.files?.[0]); e.target.value = ''; }} />
         </div>
         <p className="muted">Use an ExerciseTok blinded JSON list, a JSON array of full video URLs, or a .txt file with one URL per line. Up to 5,000 videos / 2 MB. Analysis exports with prior ratings are rejected.</p>
@@ -89,8 +91,8 @@ export function WorkflowApp() {
       <ClearSavedData onCleared={() => { setSession(null); setQueue([]); }} />
     </>}
     {stage === 'rubric' && <>
-      <button className="secondary" onClick={home}>Back</button>
-      <p className="muted">Step 2 · {mode === 'browse' ? 'Browse and code' : 'Independent list review'}</p>
+      <div className="setup-progress"><button className="secondary" onClick={home}><Icon name="back" />Back</button>
+      <span className="eyebrow">Step 2 / {mode === 'browse' ? 'Browse and code' : 'Independent list review'}</span></div>
       {notice && <p role="status">{notice}</p>}
       <RubricChoice busy={busy} onChoose={rubric => { void start(rubric); }} />
       <p className="muted">A fresh session keeps your ratings separate. The chosen rubric is fixed for this session.</p>
@@ -98,8 +100,8 @@ export function WorkflowApp() {
     {stage === 'launched' && session && <section className="card">
       <h2>Your review workspace is ready</h2>
       <p>Video and rubric appear side by side in a wider window. Your place and drafts are saved as you work.</p>
-      <button onClick={() => { void openReview(session.id).catch(cause => setError(cause.message)); }}>Open review workspace</button>
-      <button className="secondary" onClick={home}>Back to sessions</button>
+      <div className="actions"><button onClick={() => { void openReview(session.id).catch(cause => setError(cause.message)); }}><Icon name="external" />Open review workspace</button>
+      <button className="secondary" onClick={home}><Icon name="back" />Back to sessions</button></div>
     </section>}
   </main>;
 }

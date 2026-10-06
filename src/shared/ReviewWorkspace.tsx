@@ -4,6 +4,7 @@ import { repository, subscribeStore } from '../storage/repository';
 import { EvaluationEditor, type EditorHandle } from './EvaluationEditor';
 import { VideoPlayer } from './VideoPlayer';
 import { ExportPanel } from './ExportPanel';
+import { Icon } from './Icon';
 
 export function ReviewWorkspace({ sessionId }: { sessionId: string }) {
   const [session, setSession] = useState<StudySession | null>(null);
@@ -47,9 +48,9 @@ export function ReviewWorkspace({ sessionId }: { sessionId: string }) {
     <div className="review-grid">
       <section className="viewer" aria-label="Sequential video viewer">
         <nav className="queue-nav" aria-label="Video navigation">
-          <button className="secondary" disabled={moving || session.index === 0} onClick={() => { void go(session.index - 1); }}>Previous</button>
+          <button className="secondary" disabled={moving || session.index === 0} onClick={() => { void go(session.index - 1); }}><Icon name="back" />Previous</button>
           <strong aria-live="polite">Video {session.index + 1} of {session.queue.length}</strong>
-          <button className="secondary" disabled={moving || last} onClick={() => { void go(session.index + 1); }}>Next</button>
+          <button className="secondary" disabled={moving || last} onClick={() => { void go(session.index + 1); }}>Next<Icon name="next" /></button>
         </nav>
         {session.queue.slice(session.index, session.index + 2).map(video => <VideoPlayer key={video.externalId} video={video} active={video.externalId === current.externalId} />)}
         <p className="muted">Only this video is visible. The next player loads silently in the background. Previous and Next preserve drafts.</p>

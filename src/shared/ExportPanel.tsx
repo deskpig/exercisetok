@@ -4,6 +4,7 @@ import { repository, subscribeStore } from '../storage/repository';
 import { analysisRows, blindList } from '../domain/transfer';
 import { toCsv } from '../domain/export';
 import { download } from './download';
+import { Icon } from './Icon';
 
 export function ExportPanel({ sessionId, beforeExport }: { sessionId?: string; beforeExport?: () => Promise<void> }) {
   const [rows, setRows] = useState<Evaluation[]>([]);
@@ -37,10 +38,10 @@ export function ExportPanel({ sessionId, beforeExport }: { sessionId?: string; b
     <summary>Export & share · {rows.filter(row => row.status === 'complete').length} complete</summary>
     <p className="muted">{selected.length} saved records selected{sessionId ? ' in this session' : ' across sessions'}. Files download to your computer for you to share.</p>
     <label className="check-label"><input type="checkbox" checked={includeDrafts} onChange={e => setIncludeDrafts(e.target.checked)} />Include drafts and unavailable items</label>
-    <button disabled={!selected.length} className="secondary" onClick={() => { void exportData('blind'); }}>Download blinded TikTok list</button>
+    <button disabled={!selected.length} className="secondary" onClick={() => { void exportData('blind'); }}><Icon name="download" />Download blinded TikTok list</button>
     <p className="muted">Only video IDs and clean links, in collection order. No ratings, notes, researcher IDs, or coding timestamps.</p>
     <div className="field"><label htmlFor="export-rater">Unique rater ID for analysis export</label><input id="export-rater" value={rater} onChange={e => setRater(e.target.value)} placeholder="e.g. R02" /></div>
-    <div className="actions"><button disabled={!selected.length || !rater.trim()} onClick={() => { void exportData('csv'); }}>Analysis CSV</button><button disabled={!selected.length || !rater.trim()} className="secondary" onClick={() => { void exportData('json'); }}>Analysis JSON</button></div>
+    <div className="actions"><button disabled={!selected.length || !rater.trim()} onClick={() => { void exportData('csv'); }}><Icon name="download" />Analysis CSV</button><button disabled={!selected.length || !rater.trim()} className="secondary" onClick={() => { void exportData('json'); }}><Icon name="download" />Analysis JSON</button></div>
     <p className="muted">Includes your rater ID, links, rubric answers and definition, automatic/final coding, and optional override notes. Use a distinct ID for each researcher; IDs are labels, not accounts.</p>
     {message && <p role="status">{message}</p>}
   </details>;

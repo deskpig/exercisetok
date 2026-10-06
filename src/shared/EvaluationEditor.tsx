@@ -4,6 +4,8 @@ import { evaluationId, newEvaluation, updateEvaluation } from '../domain/evaluat
 import { answerErrors } from '../domain/classification';
 import { repository } from '../storage/repository';
 import { RubricForm } from './RubricForm';
+import { SectionHeader } from './SectionHeader';
+import { Icon } from './Icon';
 
 export interface EditorHandle { flush: () => Promise<void> }
 export const EvaluationEditor = forwardRef<EditorHandle, {
@@ -70,15 +72,25 @@ export const EvaluationEditor = forwardRef<EditorHandle, {
     try { await tail.current; await onComplete?.(); }
     catch { setError('Could not finish saving or move to the next item. Your answers remain in this view.'); }
   }
-  return <section className="card evaluation-editor" aria-label="Coding rubric">
-    <div className="row"><h2>Code this video</h2><span className="save-state" role="status">{pending ? 'Saving…' : message}</span></div>
+  const builtIn = rubric.id === 'exercise-depression';
+  return <section className="evaluation-editor" aria-label="Coding rubric">
+    <SectionHeader eyebrow={builtIn ? 'Clinical review / CANMAT' : 'Research review / Custom rubric'}
+      title={builtIn ? 'Assess guideline alignment' : rubric.name}
+      description={builtIn ? 'Review the message against CANMAT guidelines. Note any conflicts and cite the evidence for your assessment.' : 'Review this post using your study criteria. Record your assessment and supporting notes.'}>
+      <div className="editor-meta">
+        {rubric.fields.some(field => field.required) && <span className="required-note"><span className="required-mark">*</span> Required fields</span>}
+        <span className="save-state" role="status" data-state={pending ? 'pending' : 'saved'}>{pending ? 'Saving…' : message}</span>
+      </div>
+    </SectionHeader>
     {error && <p className="error" role="alert">{error}</p>}
     {row && <>
-      {rubric.guidance && <details className="criteria"><summary>Encoding criteria</summary><p>{rubric.guidance}</p></details>}
-      {rubric.fields.some(field => field.type === 'domain') && <p className="muted">Domains default to absent. Accuracy choices mean present.</p>}
-      <RubricForm rubric={rubric} values={row.ratings} onChange={answer} />
+      <div className="card rubric-card">
+        {rubric.guidance && <details className="criteria"><summary>Encoding criteria</summary><p>{rubric.guidance}</p></details>}
+        {rubric.fields.some(field => field.type === 'domain') && <p className="muted domain-hint">Domains default to absent. Accuracy choices mean present.</p>}
+        <RubricForm rubric={rubric} values={row.ratings} onChange={answer} />
+      </div>
       {row.classification && <section className="classification" aria-label="Global encoding">
-        <div className="row"><h3>Global encoding</h3><strong>{row.classification.final ?? 'Not classified'}</strong></div>
+        <div className="row"><h3>Global encoding</h3><span className="status-pill" data-classification={row.classification.final ?? 'unclassified'}>{row.classification.final ?? 'Not classified'}</span></div>
         <p className="muted">Inclusion: {row.classification.eligibility} · Automatic: {row.classification.suggested ?? 'Not classified'}</p>
         <details><summary>Why this classification?</summary><p>{row.classification.reason}</p></details>
         <div className="field"><label htmlFor="override">Reviewer override</label><select id="override" disabled={row.classification.eligibility !== 'included'} value={row.classification.override ?? ''} onChange={e => edit({}, (e.target.value || null) as Congruence | null)}>
@@ -86,13 +98,17 @@ export const EvaluationEditor = forwardRef<EditorHandle, {
         </select></div>
         {row.classification.override && <div className="field"><label htmlFor="override-reason">Override reason (optional)</label><textarea id="override-reason" value={row.classification.overrideReason} onChange={e => edit({}, undefined, e.target.value)} /></div>}
       </section>}
-      <details className="field"><summary>Notes / supporting quotations</summary><textarea aria-label="Notes / supporting quotations" value={row.notes} onChange={e => edit({ notes: e.target.value })} /></details>
-      <label className="check-label"><input type="checkbox" checked={row.availability === 'unavailable'} onChange={e => edit({ availability: e.target.checked ? 'unavailable' : 'not-checked' })} />Video unavailable / cannot assess</label>
-      <div className="actions editor-actions">
-        <button disabled={pending} onClick={() => { void saveComplete(); }}>{onComplete ? 'Complete & next' : 'Save complete'}</button>
+      <div className="card record-notes">
+        <div className="record-notes-fields">
+          <details className="field"><summary>Notes / supporting quotations</summary><textarea aria-label="Notes / supporting quotations" value={row.notes} onChange={e => edit({ notes: e.target.value })} /></details>
+          <label className="check-label"><input type="checkbox" checked={row.availability === 'unavailable'} onChange={e => edit({ availability: e.target.checked ? 'unavailable' : 'not-checked' })} />Video unavailable / cannot assess</label>
+        </div>
+        <div className="actions editor-actions">
+        <button disabled={pending} onClick={() => { void saveComplete(); }}><Icon name="check" />{onComplete ? 'Complete & next' : 'Save complete'}</button>
         <button className="secondary" onClick={() => edit({})}>Save draft</button>
+        </div>
+        <p className="muted editor-footnote">Edits after completion return this record to draft. Primary answer changes reset the override; its reason is optional.</p>
       </div>
-      <p className="muted">Edits after completion return this record to draft. Primary answer changes reset the override; its reason is optional.</p>
     </>}
   </section>;
 });

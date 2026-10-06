@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { repository } from '../storage/repository';
+import { Icon } from './Icon';
 
 export function ClearSavedData({ onCleared }: { onCleared: () => void }) {
   const [step, setStep] = useState(0);
@@ -19,7 +20,7 @@ export function ClearSavedData({ onCleared }: { onCleared: () => void }) {
     finally { setBusy(false); }
   }
   return <section className="saved-data">
-    <button className="secondary" onClick={() => { setMessage(''); setStep(1); }}>Clear saved sessions & lists</button>
+    <button className="secondary" onClick={() => { setMessage(''); setStep(1); }}><Icon name="trash" />Clear saved sessions & lists</button>
     {step === 0 && message && <p role="status">{message}</p>}
     <dialog ref={dialog} className="clear-dialog" aria-labelledby="clear-title" onCancel={e => { e.preventDefault(); if (!busy) setStep(0); }}>
       <h2 id="clear-title">{step === 2 ? 'Are you sure?' : 'Clear saved research data?'}</h2>

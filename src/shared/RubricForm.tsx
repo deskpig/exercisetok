@@ -40,7 +40,7 @@ export function RubricForm({ rubric, values, onChange }: { rubric: Rubric; value
     return <Fragment key={field.id}>
       {intro && <p className="field-intro">{intro}</p>}
       <fieldset className="rubric-field">
-      <legend>{field.label}{field.required ? ' *' : ''}</legend>
+      <legend>{field.label}{field.required && <span className="required-mark"> *</span>}</legend>
       {field.description && <details className="field-help"><summary>Criteria</summary><p>{field.description}</p></details>}
       {field.type === 'text' && !field.required && field.section !== 'secondary' ? <details><summary>Add notes</summary>{input}</details> : input}
       </fieldset>

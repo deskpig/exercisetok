@@ -1,0 +1,36 @@
+/* Shared visual values sampled from the supplied ExerciseTok references.
+   The Figma file could not be inspected; its exact font family is unverified. */
+:root {
+  color-scheme: light;
+  --font-sans: Inter, "Segoe UI", Arial, sans-serif;
+  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --color-page: #f8fafd;
+  --color-surface: #ffffff;
+  --color-ink: #202334;
+  --color-heading: #303731;
+  --color-muted: #69748a;
+  --color-accent: #773df0;
+  --color-accent-hover: #6426db;
+  --color-accent-soft: #f3edff;
+  --color-border: #e7ebf3;
+  --color-control-border: #cdd6e5;
+  --color-divider: #dbded5;
+  --color-info: #eef8ff;
+  --color-info-dot: #27b3ed;
+  --color-success: #28745b;
+  --color-warning: #895a12;
+  --color-danger: #a13850;
+  --color-danger-soft: #fff2f4;
+  --radius-card: 14px;
+  --radius-button: 10px;
+  --radius-input: 6px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --content-inset: 24px;
+}
