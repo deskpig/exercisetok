@@ -56,7 +56,7 @@ One row represents one saved evaluation. The export includes metadata/classifica
 
 Arrays are JSON-encoded, boolean values are `true`/`false`, absent domains are `absent`, and missing optional values are blank. Explicit zeros are retained. Spreadsheet formula prefixes are escaped in string cells; use JSON if you need exact free-text values. Import TikTok IDs as strings, as spreadsheet/numeric readers can round long IDs.
 
-Built-in rubric versions 4 and later store views and comments in `views_range` and `comments_range`. These are categorical band labels, not exact numeric counts; `Not recorded` is distinct from `0`. Likes/shares are not collected in these versions. Old sessions retain their original exact-count fields and snapshots, so mixed-version exports may include both old and new columns. Do not interpret band labels as exact counts.
+Built-in rubric versions 4–6 store views and comments in `views_range` and `comments_range`. Version 7 replaces the view field with likes in `likes_range` while retaining `comments_range`. These are categorical band labels, not exact numeric counts; `Not recorded` is distinct from `0`. Old sessions retain their original fields and snapshots, so mixed-version exports may include both `rating.views_range` and `rating.likes_range`. Do not interpret band labels as exact counts.
 
 Version 5 records all secondary free text in `secondary_notes`. Earlier sessions retain `treatment_role_notes`, `citation_notes`, and `engagement_notes` as originally saved. Mixed-version exports may therefore include both the old columns and `rating.secondary_notes`; prior notes are not discarded.
 

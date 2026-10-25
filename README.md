@@ -31,11 +31,13 @@ Each new session has its own rubric snapshot and ratings. Imported files never p
 
 Domain radios default to **Absent**. **Accurate**, **Inaccurate**, and **Partial** imply presence. The combined inclusion control defaults to absent; **Overall message conflicts with CANMAT guidelines** uses **False / True**, defaulting to False. The actionable-guidance label is **Guidance is overall actionable and guideline-congruent**. The automatic global encoding and optional reviewer override are preserved; the override reason is optional.
 
-Secondary analysis fields are collapsed to keep the panel compact. Views and comments now use sliders with count bands from zero through **100,000,000+**, plus **Not recorded**. Likes and shares have been removed from the new built-in rubric. The long encoding and secondary-section introductions have been removed; individual field criteria still expand on demand. See [rubric documentation](docs/rubrics.md) for the analysis scope and bands.
+Secondary analysis opens by default on a softly shaded panel. Likes and comments use sliders with count bands from zero through **100,000,000+**, plus **Not recorded**. Secondary choices start at explicit negative or unavailable defaults such as **Absent**, **Not mentioned**, **No citation**, and **Unclear**. Primary domain criteria are always visible in compact text instead of hiding behind a disclosure control. See [rubric documentation](docs/rubrics.md) for the analysis scope and bands.
 
-In built-in rubric version 6, count guidance appears directly before the views/comments controls. One **Secondary analysis notes** box collects treatment context, citations, and other observations. Collection time is recorded automatically; the old request to note collection timing is hidden in both new and resumed built-in sessions. Older sessions retain their original fields and saved data.
+In built-in rubric version 7, count guidance appears directly before the likes/comments controls. One **Secondary analysis notes** box collects treatment context, citations, and other observations. Collection time is recorded automatically; the old request to note collection timing is hidden in both new and resumed built-in sessions. Older sessions retain their original fields and saved data, including the version 4–6 `views_range` field.
 
 Detection checks the visible post as the feed scrolls or recycles its player, and ignores unrelated links in captions/comments. Changing posts waits for saved answers and pending writes; an older detection response cannot replace a newer post. If an extension update disconnected the detector, the panel reconnects it once using the bundled content script. The `scripting` permission is used only for this repair on the existing `www.tiktok.com` host permission. Automatic detection never opens comments; if TikTok exposes no post link, use **Detect TikTok** or the manual-link fallback.
+
+When TikTok exposes a post description to the detector, the full text is repeated in the panel with wrapping and no line clamp, so it remains readable while the extension stays open.
 
 ## Share a blinded list or export analysis data
 

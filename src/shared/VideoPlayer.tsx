@@ -30,6 +30,7 @@ export function VideoPlayer({ video, active }: { video: MediaSnapshot; active: b
     <iframe ref={frame} key={attempt} title={active ? 'Current TikTok ' + (slideshow ? 'slideshow' : 'video') : 'Next TikTok preloaded'} src={src}
       tabIndex={active ? 0 : -1} allow="fullscreen; encrypted-media" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" />
     {active && <>
+      {video.caption && <div className="media-caption"><span className="eyebrow">TikTok description</span><p>{video.caption}</p></div>}
       {(error || (slow && !ready)) && <p className="muted">The player may be blocked or this video unavailable. Open the original link below, or mark it unavailable and continue.</p>}
       <div className="actions"><a className="button secondary" href={video.canonicalUrl} target="_blank" rel="noopener noreferrer"><Icon name="external" />Open original TikTok</a>
         <button className="secondary" onClick={() => { setReady(false); setError(false); setSlow(false); setSlide(0); setAttempt(attempt + 1); }}><Icon name="refresh" />Reload player</button></div>

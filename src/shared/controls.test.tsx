@@ -43,7 +43,7 @@ it('switches the code example between field types and produces usable fields', a
   expect(host.querySelector('#field-example')!.textContent).toContain('10,000+');
   await click('Close instructions'); expect(close).toHaveBeenCalledOnce();
 });
-it('uses true/false booleans and categorical engagement sliders with no likes/shares', async () => {
+it('uses true/false booleans and categorical likes/comments sliders with no views/shares', async () => {
   const change = vi.fn();
   await act(async () => root.render(<RubricForm rubric={defaultRubric} values={defaultAnswers(defaultRubric)} onChange={change} />));
   const conflict = [...host.querySelectorAll('fieldset')].find(node => node.querySelector('legend')!.textContent!.startsWith('Overall message conflicts'))!;
@@ -53,7 +53,8 @@ it('uses true/false booleans and categorical engagement sliders with no likes/sh
   expect(change).toHaveBeenLastCalledWith('conflict', true);
   const actionable = [...host.querySelectorAll('legend')].find(node => node.textContent!.startsWith('Guidance is overall'))!;
   expect(actionable.textContent).not.toContain('*');
-  expect(host.textContent).not.toContain('Likes at collection');
+  expect(host.textContent).toContain('Likes at collection');
+  expect(host.textContent).not.toContain('Views at collection');
   expect(host.textContent).not.toContain('Shares at collection');
   const sliders = host.querySelectorAll<HTMLInputElement>('input[type=range]');
   expect(sliders).toHaveLength(2);
@@ -62,7 +63,7 @@ it('uses true/false booleans and categorical engagement sliders with no likes/sh
     Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')!.set!.call(sliders[0], '10');
     sliders[0].dispatchEvent(new Event('input', { bubbles:true }));
   });
-  expect(change).toHaveBeenLastCalledWith('views_range', '100,000,000+');
+  expect(change).toHaveBeenLastCalledWith('likes_range', '100,000,000+');
 });
 it('requires both confirmations, and Cancel at either step never deletes data', async () => {
   const clear = vi.spyOn(repository, 'clearResearchData').mockResolvedValue();
@@ -80,12 +81,17 @@ it('requires both confirmations, and Cancel at either step never deletes data', 
   expect(host.querySelector('dialog')!.open).toBe(false);
 });
 
-it('places count guidance before both sliders and uses one secondary notes box', async () => {
+it('opens secondary analysis with negative defaults and places count guidance before both sliders', async () => {
   await act(async () => root.render(<RubricForm rubric={defaultRubric} values={defaultAnswers(defaultRubric)} onChange={() => {}} />));
   const secondary = host.querySelector('.secondary-analysis')!;
   const text = secondary.textContent!;
-  expect(text.indexOf('Choose a count band')).toBeLessThan(text.indexOf('Views at collection'));
+  expect(secondary.hasAttribute('open')).toBe(true);
+  expect(text.indexOf('Choose a count band')).toBeLessThan(text.indexOf('Likes at collection'));
   expect(text.indexOf('Choose a count band')).toBeLessThan(text.indexOf('Comments at collection'));
+  expect(secondary.querySelector<HTMLInputElement>('input[name$="treatment_role_framing"][value="Not mentioned"]')!.checked).toBe(true);
+  expect(secondary.querySelector<HTMLInputElement>('input[name$="creator_type"][value="Unclear"]')!.checked).toBe(true);
+  expect(secondary.querySelector<HTMLInputElement>('input[name$="personal_experience"][value="Absent"]')!.checked).toBe(true);
+  expect(secondary.querySelector<HTMLInputElement>('input[name$="evidence_citation"][value="No citation"]')!.checked).toBe(true);
   expect(secondary.querySelectorAll('textarea')).toHaveLength(1);
   expect(secondary.querySelector('textarea')!.getAttribute('aria-label')).toBe('Secondary analysis notes');
   expect(text).not.toContain('Engagement display / timing notes');
@@ -94,7 +100,8 @@ it('places count guidance before both sliders and uses one secondary notes box',
 });
 
 it('hides the obsolete timing instruction in older built-in sessions without altering their snapshot', async () => {
-  const old = { ...defaultRubric, version:5, fields:defaultRubric.fields.map(field => field.id === 'views_range' ? { ...field, intro:field.intro + ' Note approximations or collection timing in the notes box below.' } : field) };
+  const legacyViews = { ...defaultRubric.fields.find(field => field.id === 'likes_range')!, id:'views_range', label:'Views at collection' };
+  const old = { ...defaultRubric, version:5, fields:defaultRubric.fields.filter(field => field.id !== 'likes_range').concat({ ...legacyViews, intro:(legacyViews.intro ?? '') + ' Note approximations or collection timing in the notes box below.' }) };
   await act(async () => root.render(<RubricForm rubric={old} values={defaultAnswers(old)} onChange={() => {}} />));
   expect(host.textContent).not.toContain('Note approximations or collection timing');
   expect(old.fields.find(field => field.id === 'views_range')!.intro).toContain('Note approximations');

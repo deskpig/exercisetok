@@ -81,10 +81,12 @@ details[open] > summary { margin-bottom: var(--space-2); }
 .field-help > summary { color: var(--color-muted); font-size: 11px; }
 .field-help > summary::before { border-color: var(--color-muted); }
 .field-help p { max-width: 65ch; margin: var(--space-2) 0 var(--space-3); line-height: 1.75; }
+.field-criteria { max-width: 70ch; margin: -2px 0 var(--space-2); color: var(--color-muted); font-size: 10px; line-height: 1.45; }
 .field-intro { color: var(--color-muted); font-size: 11px; margin: var(--space-5) 0 var(--space-2); }
 .criteria { padding-top: var(--space-3); }
-.secondary-analysis { padding: var(--space-4) 0; }
-.secondary-analysis[open] { padding-bottom: 0; }
+.secondary-analysis { margin: var(--space-5) calc(-1 * var(--space-3)) var(--space-2); padding: var(--space-4) var(--space-3); border-radius: var(--radius-button); background: var(--color-secondary-panel); }
+.secondary-analysis[open] { padding-bottom: var(--space-1); }
+.secondary-analysis > summary { color: var(--color-heading); }
 .secondary-analysis .rubric-field:last-child { margin-bottom: var(--space-2); }
 .classification { padding: var(--content-inset); margin: var(--space-5) 0; border-radius: var(--radius-card); background: var(--color-info); }
 .classification h3 { font-size: 13px; font-weight: 500; }
@@ -148,6 +150,8 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .media-meta { display: grid; gap: var(--space-1); margin-bottom: var(--space-4); }
 .media-meta strong { font-size: 13px; font-weight: 500; }
 .video-link { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-muted); font-size: 11px; }
+.media-caption { min-width: 0; margin-top: var(--space-3); padding: var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-input); background: var(--color-page); }
+.media-caption p { margin: var(--space-1) 0 0; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; font-size: 11px; line-height: 1.55; }
 .detect-card > details { padding-top: var(--space-3); margin-top: var(--space-3); border-top: 1px solid var(--color-border); }
 .expand-hint { display: inline-flex; align-items: center; gap: 3px; vertical-align: middle; white-space: nowrap; }
 .expand-hint svg { width: 14px; height: 14px; }
@@ -165,6 +169,7 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .queue-nav button { min-height: 34px; padding: 7px 10px; font-size: 11px; }
 iframe { border: 0; }
 .player-slot iframe { display: block; width: 100%; height: min(66vh, 650px); min-height: 400px; border-radius: var(--radius-button); background: #202334; }
+.player-slot .media-caption { margin-top: var(--space-3); }
 .player-slot .actions { margin: var(--space-4) 0 var(--space-2); }
 .player-slot .actions > * { min-height: 34px; padding: 7px 10px; font-size: 11px; }
 .player-preload { position: fixed; width: 1px; height: 1px; overflow: hidden; opacity: 0; pointer-events: none; left: -10000px; }

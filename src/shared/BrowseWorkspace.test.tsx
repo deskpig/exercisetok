@@ -79,6 +79,12 @@ it('switches to the manually detected post through the explicit request path', a
   expect(send).toHaveBeenLastCalledWith(1, { type:'DETECT_ACTIVE_MEDIA_REQUEST' });
   expect(currentUrl()).toBe(second.canonicalUrl);
 });
+it('shows the complete detected TikTok description inside the panel', async () => {
+  const caption = 'A long TikTok description that remains fully readable in the panel instead of being line-clamped or hidden behind TikTok.';
+  send.mockResolvedValue(response({ ...first, caption }));
+  await render();
+  expect(host.querySelector('.media-caption')?.textContent).toContain(caption);
+});
 it('retains the current answers when saving fails instead of changing posts', async () => {
   vi.mocked(repository.save).mockRejectedValueOnce(new Error('Storage full'));
   await render();

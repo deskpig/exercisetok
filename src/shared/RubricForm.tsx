@@ -41,14 +41,16 @@ export function RubricForm({ rubric, values, onChange }: { rubric: Rubric; value
       {intro && <p className="field-intro">{intro}</p>}
       <fieldset className="rubric-field">
       <legend>{field.label}{field.required && <span className="required-mark"> *</span>}</legend>
-      {field.description && <details className="field-help"><summary>Criteria</summary><p>{field.description}</p></details>}
+      {field.description && (field.type === 'domain' && field.section !== 'secondary'
+        ? <p className="field-criteria">{field.description}</p>
+        : <details className="field-help"><summary>Criteria</summary><p>{field.description}</p></details>)}
       {field.type === 'text' && !field.required && field.section !== 'secondary' ? <details><summary>Add notes</summary>{input}</details> : input}
       </fieldset>
     </Fragment>;
   });
   const secondary = rubric.fields.filter(field => field.section === 'secondary');
   return <>{renderFields(rubric.fields.filter(field => field.section !== 'secondary'))}
-    {secondary.length > 0 && <details className="secondary-analysis">
+    {secondary.length > 0 && <details className="secondary-analysis" open>
       <summary>{secondary.some(field => field.required) ? 'Secondary analysis' : 'Secondary analysis (optional)'}</summary>
       {rubric.secondaryGuidance && <p className="muted">{rubric.secondaryGuidance}</p>}
       {renderFields(secondary)}

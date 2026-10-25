@@ -55,11 +55,11 @@ it.each([
 it('exports engagement bands as categories instead of invented exact counts', () => {
   const media = parseTikTokUrl('https://www.tiktok.com/@example/photo/123');
   const row = newEvaluation({ id:'test', mode:'browse', rubric:defaultRubric, queue:[media], index:0, createdAt:'now' }, media);
-  row.ratings.views_range = '1,000,000–9,999,999';
+  row.ratings.likes_range = '1,000,000–9,999,999';
   const csv = toCsv([row]);
-  expect(csv).toContain('rating.views_range');
+  expect(csv).toContain('rating.likes_range');
   expect(csv).toContain('"1,000,000–9,999,999"');
   expect(csv).toContain('"slideshow"');
-  expect(csv).not.toContain('rating.likes');
+  expect(csv).not.toContain('rating.views_range');
   expect(csv).not.toContain('rating.shares');
 });

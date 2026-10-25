@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "TikTok Tally Research Collector",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Capture and independently rate short-form social media samples.",
   "permissions": ["storage", "tabs", "sidePanel", "scripting"],
   "host_permissions": ["https://www.tiktok.com/*"],

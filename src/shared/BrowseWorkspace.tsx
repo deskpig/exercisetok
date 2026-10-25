@@ -97,7 +97,7 @@ export function BrowseWorkspace({ session, onHome }: { session: StudySession; on
       <p className="muted">Keep this panel open as you browse. New videos start drafts; returning to a video restores your answers.</p>
     </section>}
     <section className="card detect-card">
-      {media && <div className="media-meta"><span className="eyebrow">Current post</span><strong>@{media.author}{media.mediaType === 'slideshow' ? ' · Slideshow' : ''}</strong><a className="muted video-link" href={media.canonicalUrl} target="_blank" rel="noopener noreferrer">{media.canonicalUrl}</a></div>}
+      {media && <div className="media-meta"><span className="eyebrow">Current post</span><strong>@{media.author}{media.mediaType === 'slideshow' ? ' · Slideshow' : ''}</strong><a className="muted video-link" href={media.canonicalUrl} target="_blank" rel="noopener noreferrer">{media.canonicalUrl}</a>{media.caption && <div className="media-caption"><span className="eyebrow">TikTok description</span><p>{media.caption}</p></div>}</div>}
       <button className="secondary" disabled={detecting} onClick={() => { void refresh(true); }}><Icon name="scan" />{detecting ? 'Detecting…' : 'Detect TikTok'}</button>
       <p className="muted">Finds the post on screen; may open its comments on For You.</p>
       {notice && <p role="status" className="muted">{notice}</p>}

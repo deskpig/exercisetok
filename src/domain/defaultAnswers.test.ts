@@ -8,9 +8,13 @@ it('stores absent defaults for every domain and boolean', () => {
   expect(answers.dose).toBe('absent');
   expect(answers.exercise_depression).toBe(false);
   expect(answers.false_claim).toBe(false);
-  expect(answers.views_range).toBe('Not recorded');
+  expect(answers.likes_range).toBe('Not recorded');
   expect(answers.comments_range).toBe('Not recorded');
-  expect(answers).not.toHaveProperty('likes');
+  expect(answers.treatment_role_framing).toBe('Not mentioned');
+  expect(answers.creator_type).toBe('Unclear');
+  expect(answers.personal_experience).toBe('Absent');
+  expect(answers.evidence_citation).toBe('No citation');
+  expect(answers).not.toHaveProperty('views_range');
   expect(answers).not.toHaveProperty('shares');
 });
 it('uses one inclusion criterion and classifies an untouched form as excluded', () => {

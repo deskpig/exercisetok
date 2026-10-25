@@ -45,7 +45,7 @@ Use the same file across researchers when you want matching definitions. To mana
 
 The previous format with `id`, `label`, and `type` per field still works, including `domain`, `boolean`, `single`, `multi`, `number`, and `text`. The new `range` type accepts ordered text `options` or numeric `min`/`max`/`step`. Advanced fields can use `default`; boolean labels can use `booleanLabels: ["False", "True"]` (false label first).
 
-Optional properties include `description`, `intro` (visible guidance before the field), `required`, and `section` (`primary` or `secondary`). Secondary fields are collapsed together; their notes boxes appear directly when the section is expanded. Optional root properties include `guidance`, `secondaryGuidance`, and `classification`.
+Optional properties include `description`, `intro` (visible guidance before the field), `required`, and `section` (`primary` or `secondary`). Secondary fields are grouped in an expanded, lightly shaded section. Optional root properties include `guidance`, `secondaryGuidance`, and `classification`.
 
 Explicit field IDs must be unique, start with a letter, and use letters, numbers, underscores, or hyphens; prototype-related keys are rejected. Choice fields need distinct text options. Defaults, numeric bounds, step sizes, and classification references are validated before a rubric can be chosen.
 
@@ -90,9 +90,9 @@ Decision order:
 
 Partial domains do not count as accurate. Three accurate domains plus a partial domain qualify as congruent unless an incongruence condition is present. A reviewer may override an included record's classification; the reason is optional. Changing a classifier input resets the override for reconsideration. Changes to notes or secondary fields preserve it. Both automatic and final values are exported.
 
-## Built-in exercise/depression rubric, version 6
+## Built-in exercise/depression rubric, version 7
 
-The primary rules and clinical wording are supplied by the research team. One combined Absent/Present control covers mention of exercise, depression, and a relationship between them. An untouched form is excluded until inclusion is marked Present. Safety remains one primary domain spanning the supplied disclaimers. The overall CANMAT-conflict control uses False/True and defaults to False. The actionable-guidance label is shortened without changing classification behavior. Long encoding/secondary introductions are omitted from the panel; individual field criteria remain available.
+The primary rules and clinical wording are supplied by the research team. One combined Absent/Present control, **Link between exercise and depression made**, covers mention of exercise, depression, and a relationship between them. An untouched form is excluded until inclusion is marked Present. Safety remains one primary domain spanning the supplied disclaimers. The overall CANMAT-conflict control uses False/True and defaults to False. The actionable-guidance label is shortened without changing classification behavior. Primary domain criteria remain visible in compact text.
 
 Secondary analysis is based on the attached *Living ExcerciseTok Draft – v2.5*, particularly its secondary objectives on page 3:
 
@@ -101,11 +101,11 @@ Secondary analysis is based on the attached *Living ExcerciseTok Draft – v2.5*
 | Domain omissions and inaccuracies | The primary dose, intensity, duration, and indication ratings already distinguish absent, accurate, inaccurate, and partial. |
 | Adjunct vs monotherapy | Separate `treatment_role` accuracy rating, stated treatment framing, and context in the shared secondary notes box. |
 | Platform differences | The `media.platform` field and CSV `platform` column are preserved. TikTok is currently implemented; Reddit collection still needs an adapter and viewer. |
-| Content features associated with congruence | Optional exploratory creator type, testimonial, source citation, views/comments count bands, and notes. |
+| Content features associated with congruence | Optional exploratory creator type, testimonial, source citation, likes/comments count bands, and notes. |
 
-The paper does **not** prescribe a detailed content-feature codebook. The exploratory categories are starting points for the study's finalized definitions. Views and comments use sliders; likes and shares have been removed since version 4. Versions 5 and later provide one **Secondary analysis notes** box (`secondary_notes`) for treatment context, citations, and other observations. The count guidance is visible immediately before the views/comments sliders. Version 6 removes the request to note collection timing because `collectedAt` is now captured automatically for every rubric. The obsolete instruction is also hidden when rendering older built-in sessions. Older fields, snapshots, and saved text remain intact.
+The paper does **not** prescribe a detailed content-feature codebook. The exploratory categories are starting points for the study's finalized definitions. Version 7 records likes and comments with sliders and labels the creator category **Fitness Account**. Versions 5 and later provide one **Secondary analysis notes** box (`secondary_notes`) for treatment context, citations, and other observations. The section opens by default with explicit negative/unavailable defaults. Collection time is captured automatically through `collectedAt`. The obsolete timing instruction remains hidden when rendering older built-in sessions. Older fields, snapshots, and saved text remain intact.
 
-Count bands are **Not recorded**, **0**, **1–9**, **10–99**, **100–999**, **1,000–9,999**, **10,000–99,999**, **100,000–999,999**, **1,000,000–9,999,999**, **10,000,000–99,999,999**, and **100,000,000+**. Missing counts default to Not recorded. Stored values use new `views_range` and `comments_range` IDs so they cannot be mistaken for the exact numeric values in earlier versions.
+Count bands are **Not recorded**, **0**, **1–9**, **10–99**, **100–999**, **1,000–9,999**, **10,000–99,999**, **100,000–999,999**, **1,000,000–9,999,999**, **10,000,000–99,999,999**, and **100,000,000+**. Missing counts default to Not recorded. Version 7 stores them as `likes_range` and `comments_range`; versions 4–6 retain `views_range` and `comments_range`.
 
 The secondary treatment-role description uses the draft's stated mild/monotherapy and moderate/adjunctive distinction. It is **not** a sixth domain in the primary score. If a treatment-role statement also contradicts primary safety or the overall guideline message, code the relevant primary field too. Secondary fields alone do not change the built-in global classification.
 

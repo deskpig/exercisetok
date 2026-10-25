@@ -5,13 +5,14 @@ import { defaultRubric } from '../domain/defaultRubric';
 import { defaultAnswers } from '../domain/defaultAnswers';
 import { ViewingPrompt } from './ViewingPrompt';
 
-it('renders compact radio groups with the saved defaults checked and criteria collapsed', () => {
+it('renders compact radio groups, visible primary criteria, and open secondary defaults', () => {
   const html = renderToStaticMarkup(<RubricForm rubric={defaultRubric} values={defaultAnswers(defaultRubric)} onChange={() => {}} />);
   expect(html).not.toContain('<select');
   expect(html).toContain('Secondary analysis (optional)');
-  expect(html.match(/checked=""/g)).toHaveLength(10);
-  expect(html).not.toContain('<details open');
-  expect(html).toContain('Exercise and depression mentioned together');
+  expect(html.match(/checked=""/g)).toHaveLength(14);
+  expect(html).toContain('<details class="secondary-analysis" open=""');
+  expect(html).toContain('class="field-criteria"');
+  expect(html).toContain('Link between exercise and depression made');
 });
 it('shows an expand icon and start-viewing instructions without a detected video', () => {
   const html = renderToStaticMarkup(<ViewingPrompt />);
